@@ -1,0 +1,24 @@
+# Planck keyboard configuration
+
+# Copyright (c) 2020 The ZMK Contributors
+# SPDX-License-Identifier: MIT
+
+if BOARD_GAMMA
+
+config ZMK_KEYBOARD_NAME
+    default "gamma"
+
+config BOARD
+    default "gamma"
+
+if USB_DEVICE_STACK
+
+config USB_NRFX
+    default y
+
+endif # USB_DEVICE_STACK
+
+config BT_CTLR
+    default BT
+
+endif # BOARD_GAMMA
