@@ -34,8 +34,10 @@ static const struct gpio_dt_spec led188_2 = GPIO_DT_SPEC_GET_OR(DT_NODELABEL(led
 static const struct gpio_dt_spec led188_3 = GPIO_DT_SPEC_GET_OR(DT_NODELABEL(led188_3), gpios, {0});
 static const struct gpio_dt_spec led188_4 = GPIO_DT_SPEC_GET_OR(DT_NODELABEL(led188_4), gpios, {0});
 static const struct gpio_dt_spec led188_5 = GPIO_DT_SPEC_GET_OR(DT_NODELABEL(led188_5), gpios, {0});
-
-static const struct gpio_dt_spec kek = GPIO_DT_SPEC_GET_OR(DT_NODELABEL(kek), gpios, {0});
+static const struct gpio_dt_spec charging_enable =
+    GPIO_DT_SPEC_GET_OR(DT_NODELABEL(chrg_enable), gpios, {0});
+static const struct gpio_dt_spec charging_status =
+    GPIO_DT_SPEC_GET_OR(DT_NODELABEL(chrg_status), gpios, {0});
 
 static const struct gpio_dt_spec led188[] = {led188_1, led188_2, led188_3, led188_4, led188_5};
 
@@ -102,27 +104,34 @@ static void display_int(int val) {
 }
 
 volatile int cycle;
-
-static void taptic_work(void) {
-    for (;;) {
-        k_msleep(1000);
-        gpio_pin_configure_dt(&kek, HIGH);
-        k_msleep(1000);
-        gpio_pin_configure_dt(&kek, LOW);
-    }
-}
+volatile int displayInt;
 
 static void my_led_work(void) {
     while (1) {
-        display_int(cycle);
+        int val = gpio_pin_get_dt(&charging_status);
+        uint8_t charge = zmk_battery_state_of_charge();
+        display_int(charge);
+        // cycle += 1;
+        // if (cycle > 200) {
+        //     displayInt++;
+        //     if (displayInt > 188) {
+        //         displayInt = 0;
+        //     }
+        //     cycle = 0;
+        // }
     }
+}
+
+static void my_init_work(void) {
+    gpio_pin_configure_dt(&charging_enable, GPIO_OUTPUT_ACTIVE);
+    gpio_pin_configure_dt(&charging_status, GPIO_INPUT);
 }
 
 #define MY_STACK_SIZE 1024
 #define MY_PRIORITY 5
 
-K_THREAD_DEFINE(tid1, MY_STACK_SIZE, taptic_work, NULL, NULL, NULL, MY_PRIORITY, 0, 0);
 K_THREAD_DEFINE(tid2, MY_STACK_SIZE, my_led_work, NULL, NULL, NULL, MY_PRIORITY, 0, 0);
+K_THREAD_DEFINE(tid1, MY_STACK_SIZE, my_init_work, NULL, NULL, NULL, MY_PRIORITY, 0, 0);
 
 /*static int led_init(const struct device *_arg){};*/
 

@@ -44,10 +44,10 @@ badd +1 C:/dev/zmk/app/boards/arm/porne/CMakeLists.txt
 badd +1 C:/dev/zmk/app/boards/arm/porne/corneish_zen.conf
 badd +19 C:/dev/zmk/app/boards/arm/corneish_zen/corneish_zen.yaml
 badd +1 C:/dev/zmk/app/boards/arm/corneish_zen/board.cmake
-badd +24 C:/dev/zmk/app/boards/arm/corneish_zen/CMakeLists.txt
-badd +61 C:/dev/zmk/app/boards/arm/corneish_zen/custom_status_screen.c
+badd +1 C:/dev/zmk/app/boards/arm/corneish_zen/CMakeLists.txt
+badd +43 C:/dev/zmk/app/boards/arm/corneish_zen/custom_status_screen.c
 badd +98 ./build/left/zephyr/include/generated/autoconf.h
-badd +14 boards/arm/corneish_zen/widgets/battery_status.h
+badd +19 boards/arm/corneish_zen/widgets/battery_status.h
 badd +52 C:/dev/zmk/app/boards/arm/corneish_zen/widgets/battery_status.c
 badd +78 ./src/display/widgets/battery_status.c
 badd +67 ./include/zmk/event_manager.h
@@ -55,9 +55,9 @@ badd +20 C:/dev/zmk/app/boards/arm/corneish_zen/widgets/peripheral_status.c
 badd +1 C:/dev/zmk/app/boards/arm/corneish_zen/widgets/icons/batt_0.c
 badd +1 C:/dev/zmk/app/boards/arm/corneish_zen/corneish_zen_v2.yaml
 badd +21 C:/dev/zmk/app/boards/arm/corneish_zen/corneish_zen.keymap
-badd +1 C:/dev/zmk/app/boards/arm/corneish_zen/corneish_zen.dtsi
+badd +32 C:/dev/zmk/app/boards/arm/corneish_zen/corneish_zen.dtsi
 badd +16 include/zmk/display.h
-badd +92 C:/dev/zmk/app/boards/arm/corneish_zen/corneish_zen_v1_left.dts
+badd +89 C:/dev/zmk/app/boards/arm/corneish_zen/corneish_zen_v1_left.dts
 badd +28 C:/dev/zmk/app/boards/arm/corneish_zen/widgets/icons/batt_100_chg.c
 badd +15 C:/dev/zmk/app/boards/arm/corneish_zen/corneish_zen_v1.zmk.yml
 badd +2 C:/dev/zmk/app/boards/arm/nice_nano/nice_nano_defconfig
@@ -68,10 +68,10 @@ badd +58 C:/dev/MegaApp/Assets/Scripts/Core/Infrastructure/UserAuth/AuthService/
 badd +1 C:/dev/zmk/app/boards/arm/corneish_zen/Kconfig
 badd +5 boards/arm/corneish_zen/corneish_zen.conf
 badd +1 C:/dev/zmk/app/boards/arm/corneish_zen/Kconfig.board
-badd +9 C:/dev/zmk/app/boards/arm/corneish_zen/Kconfig.defconfig
+badd +24 C:/dev/zmk/app/boards/arm/corneish_zen/Kconfig.defconfig
 badd +49 C:/dev/zmk/app/boards/arm/corneish_zen/corneish_zen_v1_left_defconfig
-badd +1 C:/dev/zmk/app/boards/arm/corneish_zen/corneish_zen_v2_right.dts
-badd +16 C:/dev/zmk/app/boards/arm/corneish_zen/corneish_zen_v2_left_defconfig
+badd +47 C:/dev/zmk/app/boards/arm/corneish_zen/corneish_zen_v2_right.dts
+badd +59 C:/dev/zmk/app/boards/arm/corneish_zen/corneish_zen_v2_left_defconfig
 badd +10 C:/dev/zmk/zephyr/drivers/gpio/Kconfig.nrfx
 badd +1 C:/dev/zmk/app/boards/arm/corneish_zen/corneish_zen_v2_left.dts
 badd +1 C:/dev/zmk/app/boards/arm/corneish_zen/widgets/output_status.c
@@ -79,7 +79,7 @@ badd +1 C:/dev/zmk/app/boards/arm/corneish_zen/widgets/layer_status.c
 badd +1 C:/dev/zmk/app/boards/arm/planck/CMakeLists.txt
 badd +1 C:/dev/zmk/app/boards/arm/gamma/CMakeLists.txt
 badd +1 C:/dev/zmk/app/boards/arm/planck/Kconfig.board
-badd +7 C:/dev/zmk/app/boards/arm/gamma/Kconfig.board
+badd +9 C:/dev/zmk/app/boards/arm/gamma/Kconfig.board
 badd +27 C:/dev/zmk/app/boards/arm/nice_nano/nice_nano_v2_defconfig
 badd +5 C:/dev/zmk/app/boards/arm/nice_nano/nice_nano_v2.zmk.yml
 badd +14 C:/dev/zmk/app/boards/arm/nice_nano/nice_nano_v2.yaml
@@ -89,17 +89,15 @@ badd +8 C:/dev/zmk/zephyr/boards/arm/adafruit_feather_nrf52840/adafruit_feather_
 badd +11 C:/dev/zmk/zephyr/dts/arm/nordic/nrf52840_qiaa.dtsi
 badd +1 C:/dev/zmk/zephyr/dts/arm/nordic/nrf52840.dtsi
 badd +5 C:/dev/zmk/app/boards/arm/gamma/board.cmake
-badd +15 C:/dev/zmk/app/boards/arm/gamma/Kconfig.defconfig
-badd +96 C:/dev/zmk/app/boards/arm/gamma/gamma.dts
-badd +26 C:/dev/zmk/app/boards/arm/gamma/gamma.keymap
-badd +18 C:/dev/zmk/app/boards/arm/gamma/gamma.yaml
+badd +24 C:/dev/zmk/app/boards/arm/gamma/Kconfig.defconfig
+badd +31 C:/dev/zmk/app/boards/arm/gamma/gamma.keymap
+badd +1 C:/dev/zmk/app/boards/arm/gamma/gamma.yaml
 badd +12 C:/dev/zmk/app/boards/arm/gamma/gamma.zmk.yml
-badd +26 C:/dev/zmk/app/boards/arm/gamma/gamma_defconfig
 badd +1 C:/dev/zmk/app/boards/arm/nrf52840_m2/board.cmake
 badd +2 C:/dev/zmk/app/boards/arm/glove80/CMakeLists.txt
 badd +1 C:/dev/zmk/app/boards/arm/nice60/board.cmake
 badd +1 C:/dev/zmk/app/boards/arm/gamma/gamma.conf
-badd +1 C:/dev/zmk/app/boards/arm/gamma/Kconfig
+badd +2 C:/dev/zmk/app/boards/arm/gamma/Kconfig
 badd +3 C:/dev/zmk/app/boards/arm/ferris/ferris_rev02_defconfig
 badd +1 C:/dev/zmk/app/boards/arm/ferris/ferris_rev02.zmk.yml
 badd +1 C:/dev/zmk/app/boards/arm/ferris/ferris_rev02.yaml
@@ -109,10 +107,10 @@ badd +1 C:/dev/zmk/app/boards/arm/ferris/board.cmake
 badd +1 C:/dev/zmk/app/boards/arm/ferris/README.md
 badd +11 C:/dev/zmk/app/boards/arm/ferris/Kconfig.defconfig
 badd +1 C:/dev/zmk/app/boards/arm/ferris/Kconfig.board
-badd +38 C:/dev/zmk/app/boards/arm/gamma/gamma.c
+badd +119 C:/dev/zmk/app/boards/arm/gamma/gamma.c
 badd +240 ~/AppData/Local/nvim/init.vim
 badd +310 ./include/dt-bindings/zmk/keys.h
-badd +55 src/battery.c
+badd +70 src/battery.c
 badd +85 boards/shields/nice_view/widgets/status.c
 badd +289 boards/arm/gamma/digits.h
 badd +1 C:/dev/zmk/app/boards/arm/corneish_zen/custom_status_screen.h
@@ -164,11 +162,24 @@ badd +37 boards/arm/puchi_ble/puchi_ble_v1.dts
 badd +8 C:/dev/zmk/app/boards/arm/puchi_ble/puchi_ble_v1-pinctrl.dtsi
 badd +7 boards/shields/snap/snap.zmk.yml
 badd +202 module/drivers/sensor/max17048/max17048.c
-badd +1 C:/dev/zmk/app/boards/arm/corneish_zen/corneish_zen_v2_right_defconfig
+badd +35 C:/dev/zmk/app/boards/arm/corneish_zen/corneish_zen_v2_right_defconfig
 badd +1 C:/dev/zmk/app/boards/arm/corneish_zen/corneish_zen_v2.zmk.yml
+badd +41 C:/dev/Adafruit_nRF52_Bootloader/src/boards/gamma/board.h
+badd +49 C:/dev/Adafruit_nRF52_Bootloader/src/boards/boards.h
+badd +305 C:/dev/Adafruit_nRF52_Bootloader/src/boards/boards.c
+badd +1552 C:/dev/zmk/zephyr/include/zephyr/drivers/gpio.h
+badd +44 C:/dev/zmk/zephyr/include/zephyr/bluetooth/services/bas.h
+badd +75 boards/shields/zmk_uno/zmk_uno.dtsi
+badd +10 C:/dev/zmk/app/boards/arm/gamma/gamma_left_defconfig
+badd +70 CMakeLists.txt
+badd +1 C:/dev/zmk/app/boards/arm/gamma/gamma.dtsi
+badd +1 C:/dev/zmk/app/boards/arm/gamma/gamma_left.dts
+badd +1 C:/dev/zmk/app/boards/arm/gamma/gamma_right.dts
+badd +15 C:/dev/zmk/app/boards/arm/gamma/gamma_right_defconfig
+badd +20 boards/shields/zodiark/Kconfig.defconfig
 argglobal
 %argdel
-edit C:/dev/zmk/app/boards/arm/gamma/gamma.c
+edit C:/dev/zmk/app/boards/arm/gamma/gamma_right_defconfig
 let s:save_splitbelow = &splitbelow
 let s:save_splitright = &splitright
 set splitbelow splitright
@@ -188,30 +199,7 @@ set winwidth=1
 exe 'vert 1resize ' . ((&columns * 136 + 137) / 274)
 exe 'vert 2resize ' . ((&columns * 137 + 137) / 274)
 argglobal
-balt C:/dev/zmk/app/boards/arm/corneish_zen/corneish_zen_v2.zmk.yml
-setlocal fdm=manual
-setlocal fde=0
-setlocal fmr={{{,}}}
-setlocal fdi=#
-setlocal fdl=0
-setlocal fml=1
-setlocal fdn=20
-setlocal fen
-silent! normal! zE
-let &fdl = &fdl
-let s:l = 38 - ((37 * winheight(0) + 26) / 52)
-if s:l < 1 | let s:l = 1 | endif
-keepjumps exe s:l
-normal! zt
-keepjumps 38
-normal! 075|
-wincmd w
-argglobal
-if bufexists(fnamemodify("C:/dev/zmk/app/boards/arm/gamma/gamma.dts", ":p")) | buffer C:/dev/zmk/app/boards/arm/gamma/gamma.dts | else | edit C:/dev/zmk/app/boards/arm/gamma/gamma.dts | endif
-if &buftype ==# 'terminal'
-  silent file C:/dev/zmk/app/boards/arm/gamma/gamma.dts
-endif
-balt C:/dev/zmk/app/boards/arm/gamma/gamma.c
+balt C:/dev/zmk/app/boards/arm/corneish_zen/corneish_zen_v2_left_defconfig
 setlocal fdm=manual
 setlocal fde=0
 setlocal fmr={{{,}}}
@@ -222,12 +210,35 @@ setlocal fdn=20
 setlocal fen
 silent! normal! zE
 let &fdl = &fdl
-let s:l = 96 - ((50 * winheight(0) + 26) / 52)
+let s:l = 15 - ((14 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 96
-normal! 073|
+keepjumps 15
+normal! 0
+wincmd w
+argglobal
+if bufexists(fnamemodify("C:/dev/zmk/app/boards/arm/gamma/gamma_left_defconfig", ":p")) | buffer C:/dev/zmk/app/boards/arm/gamma/gamma_left_defconfig | else | edit C:/dev/zmk/app/boards/arm/gamma/gamma_left_defconfig | endif
+if &buftype ==# 'terminal'
+  silent file C:/dev/zmk/app/boards/arm/gamma/gamma_left_defconfig
+endif
+balt C:/dev/zmk/app/boards/arm/gamma/gamma_right_defconfig
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=99
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let &fdl = &fdl
+let s:l = 3 - ((2 * winheight(0) + 26) / 52)
+if s:l < 1 | let s:l = 1 | endif
+keepjumps exe s:l
+normal! zt
+keepjumps 3
+normal! 0
 wincmd w
 2wincmd w
 exe 'vert 1resize ' . ((&columns * 136 + 137) / 274)
