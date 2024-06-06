@@ -1,7 +1,7 @@
 file_format: "1"
 id: gamma
 name: Gamma
-type: board
+type: keyboard
 arch: arm
 features:
   - keys

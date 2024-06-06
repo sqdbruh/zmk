@@ -1,5 +1,7 @@
+#ifndef CONFIG_BOARD_GAMMA_DONGLE 
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
+#include <zephyr/bluetooth/conn.h>
 #include <zephyr/drivers/i2c.h>
 #include <zephyr/devicetree.h>
 #include <zephyr/drivers/gpio.h>
@@ -12,6 +14,7 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
 #include <zmk/ble.h>
 #include <zmk/usb.h>
+#include <zmk/split/bluetooth/peripheral.h>
 #include <zmk/activity.h>
 #include <zmk/event_manager.h>
 #include <zmk/events/ble_active_profile_changed.h>
@@ -108,9 +111,12 @@ volatile int displayInt;
 
 static void my_led_work(void) {
     while (1) {
-        int val = gpio_pin_get_dt(&charging_status);
+        bool charged = gpio_pin_get_dt(&charging_status);
         uint8_t charge = zmk_battery_state_of_charge();
-        display_int(charge);
+        uint32_t connStatus = zmk_usb_get_conn_state();
+        bool isConnected = zmk_split_bt_peripheral_is_connected();
+        // bool isOpen = zmk_ble_active_profile_is_open();
+        display_int(isConnected);
         // cycle += 1;
         // if (cycle > 200) {
         //     displayInt++;
@@ -136,3 +142,4 @@ K_THREAD_DEFINE(tid1, MY_STACK_SIZE, my_init_work, NULL, NULL, NULL, MY_PRIORITY
 /*static int led_init(const struct device *_arg){};*/
 
 /*SYS_INIT(led_init, APPLICATION, CONFIG_APPLICATION_INIT_PRIORITY);*/
+#endif
