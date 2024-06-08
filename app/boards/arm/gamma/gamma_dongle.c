@@ -19,13 +19,6 @@ uint32_t step;
 uint32_t dir;
 uint32_t pulse_width;
 
-void show_battery(){
-
-}
-void hide_battery(){
-
-}
-
 void led_step(const struct pwm_dt_spec* spec, uint32_t maxPeriod) {
     pwm_set_pulse_dt(spec, pulse_width);
 }
