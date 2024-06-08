@@ -874,4 +874,14 @@ static int zmk_split_bt_central_init(void) {
     return IS_ENABLED(CONFIG_ZMK_BLE_CLEAR_BONDS_ON_START) ? 0 : start_scanning();
 }
 
+int count_connected_peripherals(void) {
+    int count = 0;
+    for (int i = 0; i < ZMK_SPLIT_BLE_PERIPHERAL_COUNT; i++) {
+        if (peripherals[i].state == PERIPHERAL_SLOT_STATE_CONNECTED) {
+            count++;
+        }
+    }
+    return count;
+}
+
 SYS_INIT(zmk_split_bt_central_init, APPLICATION, CONFIG_ZMK_BLE_INIT_PRIORITY);

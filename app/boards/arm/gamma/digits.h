@@ -90,6 +90,11 @@ static const uint16_t digit_x9x =
     (1 << A2) | (1 << _F2) | (1 << G2) | (1 << C2) | (1 << D2) | (1 << B2);
 
 static const uint16_t digit_1xx = (1 << B1) | (1 << C1);
+static const uint16_t digit_xCh =
+    (1 << G2) | (1 << E2) | (1 << D2) | (1 << _F3) | (1 << E3) | (1 << G3) | (1 << C3);
+
+static const uint16_t digit_xbt =
+    (1 << _F2) | (1 << E2) | (1 << D2) | (1 << C2) | (1 << G2) | (1 << _F3) | (1 << E3) | (1 << D3) | (1 << G3);
 
 static const uint16_t digits188[] = {
     digit_xx0,
@@ -260,30 +265,24 @@ static const uint16_t digits188[] = {
 #define DRV2605_REG_WAVESEQ7 0x0A ///< Waveform sequence register 7
 #define DRV2605_REG_WAVESEQ8 0x0B ///< Waveform sequence register 8
 
-#define DRV2605_REG_GO 0x0C         ///< Go register
-#define DRV2605_REG_OVERDRIVE 0x0D  ///< Overdrive time offset register
-#define DRV2605_REG_SUSTAINPOS 0x0E ///< Sustain time offset, positive register
-#define DRV2605_REG_SUSTAINNEG 0x0F ///< Sustain time offset, negative register
-#define DRV2605_REG_BREAK 0x10      ///< Brake time offset register
-#define DRV2605_REG_AUDIOCTRL 0x11  ///< Audio-to-vibe control register
-#define DRV2605_REG_AUDIOLVL                                                   \
-  0x12 ///< Audio-to-vibe minimum input level register
-#define DRV2605_REG_AUDIOMAX                                                   \
-  0x13 ///< Audio-to-vibe maximum input level register
-#define DRV2605_REG_AUDIOOUTMIN                                                \
-  0x14 ///< Audio-to-vibe minimum output drive register
-#define DRV2605_REG_AUDIOOUTMAX                                                \
-  0x15                          ///< Audio-to-vibe maximum output drive register
-#define DRV2605_REG_RATEDV 0x16 ///< Rated voltage register
-#define DRV2605_REG_CLAMPV 0x17 ///< Overdrive clamp voltage register
-#define DRV2605_REG_AUTOCALCOMP                                                \
-  0x18 ///< Auto-calibration compensation result register
-#define DRV2605_REG_AUTOCALEMP                                                 \
-  0x19                            ///< Auto-calibration back-EMF result register
-#define DRV2605_REG_FEEDBACK 0x1A ///< Feedback control register
-#define DRV2605_REG_CONTROL1 0x1B ///< Control1 Register
-#define DRV2605_REG_CONTROL2 0x1C ///< Control2 Register
-#define DRV2605_REG_CONTROL3 0x1D ///< Control3 Register
-#define DRV2605_REG_CONTROL4 0x1E ///< Control4 Register
-#define DRV2605_REG_VBAT 0x21     ///< Vbat voltage-monitor register
-#define DRV2605_REG_LRARESON 0x22 ///< LRA resonance-period register
+#define DRV2605_REG_GO 0x0C          ///< Go register
+#define DRV2605_REG_OVERDRIVE 0x0D   ///< Overdrive time offset register
+#define DRV2605_REG_SUSTAINPOS 0x0E  ///< Sustain time offset, positive register
+#define DRV2605_REG_SUSTAINNEG 0x0F  ///< Sustain time offset, negative register
+#define DRV2605_REG_BREAK 0x10       ///< Brake time offset register
+#define DRV2605_REG_AUDIOCTRL 0x11   ///< Audio-to-vibe control register
+#define DRV2605_REG_AUDIOLVL 0x12    ///< Audio-to-vibe minimum input level register
+#define DRV2605_REG_AUDIOMAX 0x13    ///< Audio-to-vibe maximum input level register
+#define DRV2605_REG_AUDIOOUTMIN 0x14 ///< Audio-to-vibe minimum output drive register
+#define DRV2605_REG_AUDIOOUTMAX 0x15 ///< Audio-to-vibe maximum output drive register
+#define DRV2605_REG_RATEDV 0x16      ///< Rated voltage register
+#define DRV2605_REG_CLAMPV 0x17      ///< Overdrive clamp voltage register
+#define DRV2605_REG_AUTOCALCOMP 0x18 ///< Auto-calibration compensation result register
+#define DRV2605_REG_AUTOCALEMP 0x19  ///< Auto-calibration back-EMF result register
+#define DRV2605_REG_FEEDBACK 0x1A    ///< Feedback control register
+#define DRV2605_REG_CONTROL1 0x1B    ///< Control1 Register
+#define DRV2605_REG_CONTROL2 0x1C    ///< Control2 Register
+#define DRV2605_REG_CONTROL3 0x1D    ///< Control3 Register
+#define DRV2605_REG_CONTROL4 0x1E    ///< Control4 Register
+#define DRV2605_REG_VBAT 0x21        ///< Vbat voltage-monitor register
+#define DRV2605_REG_LRARESON 0x22    ///< LRA resonance-period register

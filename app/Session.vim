@@ -77,7 +77,7 @@ badd +1 boards/arm/corneish_zen/corneish_zen_v2_left.dts
 badd +1 boards/arm/corneish_zen/widgets/output_status.c
 badd +1 boards/arm/corneish_zen/widgets/layer_status.c
 badd +1 boards/arm/planck/CMakeLists.txt
-badd +1 boards/arm/gamma/CMakeLists.txt
+badd +2 boards/arm/gamma/CMakeLists.txt
 badd +1 boards/arm/planck/Kconfig.board
 badd +15 boards/arm/gamma/Kconfig.board
 badd +27 boards/arm/nice_nano/nice_nano_v2_defconfig
@@ -89,15 +89,15 @@ badd +8 C:/dev/zmk/zephyr/boards/arm/adafruit_feather_nrf52840/adafruit_feather_
 badd +11 C:/dev/zmk/zephyr/dts/arm/nordic/nrf52840_qiaa.dtsi
 badd +1 C:/dev/zmk/zephyr/dts/arm/nordic/nrf52840.dtsi
 badd +1 boards/arm/gamma/board.cmake
-badd +5 boards/arm/gamma/Kconfig.defconfig
-badd +31 boards/arm/gamma/gamma.keymap
+badd +69 boards/arm/gamma/Kconfig.defconfig
+badd +33 boards/arm/gamma/gamma.keymap
 badd +1 boards/arm/gamma/gamma.yaml
 badd +4 boards/arm/gamma/gamma.zmk.yml
 badd +1 boards/arm/nrf52840_m2/board.cmake
 badd +2 boards/arm/glove80/CMakeLists.txt
 badd +1 boards/arm/nice60/board.cmake
 badd +1 boards/arm/gamma/gamma.conf
-badd +3 boards/arm/gamma/Kconfig
+badd +2 boards/arm/gamma/Kconfig
 badd +3 boards/arm/ferris/ferris_rev02_defconfig
 badd +1 boards/arm/ferris/ferris_rev02.zmk.yml
 badd +1 boards/arm/ferris/ferris_rev02.yaml
@@ -107,21 +107,21 @@ badd +1 boards/arm/ferris/board.cmake
 badd +1 boards/arm/ferris/README.md
 badd +11 boards/arm/ferris/Kconfig.defconfig
 badd +1 boards/arm/ferris/Kconfig.board
-badd +117 boards/arm/gamma/gamma.c
+badd +149 boards/arm/gamma/gamma.c
 badd +240 ~/AppData/Local/nvim/init.vim
 badd +310 include/dt-bindings/zmk/keys.h
 badd +70 src/battery.c
 badd +85 boards/shields/nice_view/widgets/status.c
-badd +21 boards/arm/gamma/digits.h
+badd +98 boards/arm/gamma/digits.h
 badd +1 boards/arm/corneish_zen/custom_status_screen.h
 badd +9 include/zmk/battery.h
 badd +24 include/zmk/usb.h
 badd +12 include/zmk/events/battery_state_changed.h
 badd +99 build/zephyr/include/generated/syscalls/sensor.h
-badd +642 src/behaviors/behavior_hold_tap.c
+badd +21 src/behaviors/behavior_hold_tap.c
 badd +75 src/activity.c
-badd +44 tests/ble/central/src/main.c
-badd +116 src/ble.c
+badd +274 tests/ble/central/src/main.c
+badd +227 src/ble.c
 badd +1 boards/arm/glove80/usb_serial_number.c
 badd +29 boards/arm/planck/planck_rev6.dts
 badd +23 boards/arm/planck/planck_rev6.keymap
@@ -131,9 +131,9 @@ badd +1 boards/arm/planck/planck_rev6_defconfig
 badd +1 boards/arm/planck/board.cmake
 badd +1 boards/arm/planck/Kconfig.defconfig
 badd +39 src/behaviors/behavior_mouse_key_press.c
-badd +30 src/behaviors/behavior_key_press.c
+badd +16 src/behaviors/behavior_key_press.c
 badd +228 src/behaviors/behavior_macro.c
-badd +17 src/behaviors/behavior_reset.c
+badd +50 src/behaviors/behavior_reset.c
 badd +74 src/kscan.c
 badd +542 src/combo.c
 badd +192 src/backlight.c
@@ -142,7 +142,7 @@ badd +32 boards/arm/nrfmicro/nrfmicro_13.dts
 badd +1 dts/bindings/behaviors/zero_param.yaml
 badd +1 dts/bindings/behaviors/two_param.yaml
 badd +1 dts/bindings/behaviors/macro_base.yaml
-badd +1 dts/bindings/behaviors/zmk,behavior-key-press.yaml
+badd +8 dts/bindings/behaviors/zmk,behavior-key-press.yaml
 badd +10 dts/bindings/behaviors/one_param.yaml
 badd +8 dts/bindings/behaviors/zmk,behavior-backlight.yaml
 badd +1 dts/bindings/behaviors/zmk,behavior-bluetooth.yaml
@@ -151,12 +151,12 @@ badd +1 dts/bindings/behaviors/zmk,behavior-to-layer.yaml
 badd +1 dts/bindings/behaviors/zmk,behavior-key-toggle.yaml
 badd +1 dts/bindings/behaviors/zmk,behavior-key-repeat.yaml
 badd +8 dts/bindings/behaviors/zmk,behavior-bat-display.yaml
-badd +1 src/behaviors/behavior_bt.c
+badd +30 src/behaviors/behavior_bt.c
 badd +21 src/behaviors/behavior_bat_display.c
 badd +1 src/behaviors/behavior_sensor_rotate.c
 badd +71 src/behaviors/behavior_sticky_key.c
-badd +259 src/behaviors/behavior_tap_dance.c
-badd +60 src/behaviors/behavior_ext_power.c
+badd +1 src/behaviors/behavior_tap_dance.c
+badd +75 src/behaviors/behavior_ext_power.c
 badd +30 boards/arm/corneish_zen/corneish_zen_v1_right_defconfig
 badd +37 boards/arm/puchi_ble/puchi_ble_v1.dts
 badd +8 boards/arm/puchi_ble/puchi_ble_v1-pinctrl.dtsi
@@ -167,23 +167,68 @@ badd +1 boards/arm/corneish_zen/corneish_zen_v2.zmk.yml
 badd +41 C:/dev/Adafruit_nRF52_Bootloader/src/boards/gamma/board.h
 badd +49 C:/dev/Adafruit_nRF52_Bootloader/src/boards/boards.h
 badd +305 C:/dev/Adafruit_nRF52_Bootloader/src/boards/boards.c
-badd +1552 C:/dev/zmk/zephyr/include/zephyr/drivers/gpio.h
+badd +75 C:/dev/zmk/zephyr/include/zephyr/drivers/gpio.h
 badd +44 C:/dev/zmk/zephyr/include/zephyr/bluetooth/services/bas.h
 badd +75 boards/shields/zmk_uno/zmk_uno.dtsi
-badd +2 boards/arm/gamma/gamma_left_defconfig
-badd +70 CMakeLists.txt
-badd +68 boards/arm/gamma/gamma.dtsi
-badd +1 boards/arm/gamma/gamma_left.dts
-badd +1 boards/arm/gamma/gamma_right.dts
-badd +18 boards/arm/gamma/gamma_right_defconfig
+badd +43 boards/arm/gamma/gamma_left_defconfig
+badd +41 CMakeLists.txt
+badd +29 boards/arm/gamma/gamma.dtsi
+badd +2 boards/arm/gamma/gamma_left.dts
+badd +2 boards/arm/gamma/gamma_right.dts
+badd +11 boards/arm/gamma/gamma_right_defconfig
 badd +20 boards/shields/zodiark/Kconfig.defconfig
 badd +25 boards/arm/nrfmicro/nrfmicro_11_flipped_defconfig
-badd +24 boards/arm/gamma/gamma_dongle_defconfig
+badd +47 boards/arm/gamma/gamma_dongle_defconfig
 badd +10 boards/shields/settings_reset/Kconfig.defconfig
 badd +9 C:/dev/zmk/app/include/zmk/split/bluetooth/peripheral.h
+badd +26 C:/dev/zmk/app/boards/arm/gamma/gamma_dongle.c
+badd +42 C:/dev/zmk/app/boards/arm/gamma/gamma_dongle.dts
+badd +1 include/zmk/ble.h
+badd +14 include/zmk/behavior.h
+badd +614 C:/dev/zmk/zephyr/include/zephyr/devicetree.h
+badd +87 C:/dev/zmk/zephyr/include/zephyr/drivers/pwm.h
+badd +370 C:/dev/zmk/zephyr/include/zephyr/bluetooth/conn.h
+badd +1 src/split/bluetooth/central.c
+badd +4 include/zmk/split/bluetooth/central.h
+badd +19 src/hid_indicators.c
+badd +1 include/zmk/hid_indicators.h
+badd +25 C:/dev/zmk/app/boards/arm/gamma/gamma_halves.dts
+badd +126 C:/dev/zmk/app/build/zephyr/include/generated/syscalls/kernel.h
+badd +176 C:/dev/zmk/app/build/zephyr/include/generated/syscalls/gpio.h
+badd +33 C:/dev/zmk/app/src/usb.c
+badd +15 dts/behaviors/key_press.dtsi
+badd +14 C:/dev/zmk/app/dts/behaviors/bluetooth.dtsi
+badd +1 C:/dev/zmk/app/dts/behaviors/sticky_key.dtsi
+badd +8 C:/dev/zmk/app/dts/bindings/behaviors/zmk,behavior-check-battery.yaml
+badd +34 C:/dev/zmk/app/src/behaviors/behavior_check_battery.c
+badd +73 C:/dev/zmk/app/src/behaviors/behavior_backlight.c
+badd +1 C:/dev/zmk/app/include/drivers/behavior.h
+badd +14 dts/behaviors/reset.dtsi
+badd +7 C:/dev/zmk/app/dts/behaviors/check_battery.dtsi
+badd +11 C:/dev/zmk/app/dts/behaviors/gresc.dtsi
+badd +1 C:/dev/zmk/app/dts/behaviors/ext_power.dtsi
+badd +12 dts/behaviors.dtsi
+badd +1 C:/dev/zmk/app/src/behaviors/behavior_none.c
+badd +14 C:/dev/zmk/app/src/behaviors/behavior_rgb_underglow.c
+badd +3 C:/dev/zmk/app/boards/arm/gamma/gamma.h
+badd +1 C:/dev/zmk/zephyr/include/zephyr/device.h
+badd +4 C:/dev/zmk/app/include/zmk/gamma.h
+badd +1 C:/dev/zmk/app/include/zmk/rgb_underglow.h
+badd +1 C:/dev/zmk/app/dts/behaviors/to_layer.dtsi
+badd +1 C:/dev/zmk/app/dts/behaviors/toggle_layer.dtsi
+badd +1 C:/dev/zmk/app/dts/behaviors/transparent.dtsi
+badd +1 C:/dev/zmk/app/dts/behaviors/soft_off.dtsi
+badd +1 C:/dev/zmk/app/dts/behaviors/outputs.dtsi
+badd +1 C:/dev/zmk/app/dts/behaviors/none.dtsi
+badd +1 C:/dev/zmk/app/dts/behaviors/mouse_key_press.dtsi
+badd +1 C:/dev/zmk/app/dts/behaviors/caps_word.dtsi
+badd +1 C:/dev/zmk/app/dts/behaviors/backlight.dtsi
+badd +1 C:/dev/zmk/app/dts/behaviors/macros.dtsi
+badd +9 C:/dev/zmk/app/dts/behaviors/mod_tap.dtsi
+badd +0 src/split/bluetooth/peripheral.c
 argglobal
 %argdel
-edit boards/arm/gamma/digits.h
+edit boards/arm/gamma/gamma.c
 let s:save_splitbelow = &splitbelow
 let s:save_splitright = &splitright
 set splitbelow splitright
@@ -203,7 +248,7 @@ set winwidth=1
 exe 'vert 1resize ' . ((&columns * 136 + 137) / 274)
 exe 'vert 2resize ' . ((&columns * 137 + 137) / 274)
 argglobal
-balt boards/arm/gamma/gamma.dtsi
+balt C:/dev/zmk/app/boards/arm/gamma/gamma_dongle.c
 setlocal fdm=manual
 setlocal fde=0
 setlocal fmr={{{,}}}
@@ -214,19 +259,19 @@ setlocal fdn=20
 setlocal fen
 silent! normal! zE
 let &fdl = &fdl
-let s:l = 21 - ((20 * winheight(0) + 26) / 52)
+let s:l = 112 - ((13 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 21
-normal! 060|
+keepjumps 112
+normal! 0
 wincmd w
 argglobal
-if bufexists(fnamemodify("boards/arm/gamma/gamma.c", ":p")) | buffer boards/arm/gamma/gamma.c | else | edit boards/arm/gamma/gamma.c | endif
+if bufexists(fnamemodify("src/split/bluetooth/peripheral.c", ":p")) | buffer src/split/bluetooth/peripheral.c | else | edit src/split/bluetooth/peripheral.c | endif
 if &buftype ==# 'terminal'
-  silent file boards/arm/gamma/gamma.c
+  silent file src/split/bluetooth/peripheral.c
 endif
-balt C:/dev/zmk/app/include/zmk/split/bluetooth/peripheral.h
+balt boards/arm/gamma/gamma_right_defconfig
 setlocal fdm=manual
 setlocal fde=0
 setlocal fmr={{{,}}}
@@ -237,12 +282,12 @@ setlocal fdn=20
 setlocal fen
 silent! normal! zE
 let &fdl = &fdl
-let s:l = 117 - ((25 * winheight(0) + 26) / 52)
+let s:l = 77 - ((35 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 117
-normal! 028|
+keepjumps 77
+normal! 057|
 wincmd w
 2wincmd w
 exe 'vert 1resize ' . ((&columns * 136 + 137) / 274)

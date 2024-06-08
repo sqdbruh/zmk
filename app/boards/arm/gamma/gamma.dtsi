@@ -7,7 +7,6 @@
 
 /dts-v1/;
 #include <nordic/nrf52840_qiaa.dtsi>
-
 #include <dt-bindings/zmk/matrix_transform.h>
 
 / {
@@ -23,6 +22,7 @@
         zephyr,flash = &flash0;
         zephyr,console = &cdc_acm_uart;
     };
+
 
     vbatt: vbatt {
         compatible = "zmk,battery-nrf-vddh";
@@ -60,34 +60,6 @@
             ;
     };
 
-
-    gamma_gpios {
-        compatible = "gpio-leds";
-        led188_1: led_1 {
-            gpios = <&gpio0 22 GPIO_ACTIVE_HIGH>;
-        };
-        led188_2: led_2 {
-            gpios = <&gpio1 0 GPIO_ACTIVE_HIGH>;
-        };
-        led188_3: led_3 {
-            gpios = <&gpio1 2 GPIO_ACTIVE_HIGH>;
-        };
-        led188_4: led_4 {
-            gpios = <&gpio1 4 GPIO_ACTIVE_HIGH>;
-        };
-        led188_5: led_5 {
-            gpios = <&gpio1 6 GPIO_ACTIVE_HIGH>;
-        };
-
-        chrg_enable: chrg_enable {
-            gpios = <&gpio0 24 GPIO_ACTIVE_LOW>;
-        };
-
-        chrg_status: chrg_status {
-            gpios = <&gpio0 20 (GPIO_ACTIVE_HIGH | GPIO_PULL_UP)>;
-        };
-    };
-
     default_transform: keymap_transform_0 {
             compatible = "zmk,matrix-transform";
             columns = <44>;
@@ -99,7 +71,7 @@
                                            RC(0,18) RC(0,19) RC(0,20) RC(0,42) RC(0,41) RC(0,40)
             >;
         };
-    };
+};
 
 &adc {
     status = "okay";

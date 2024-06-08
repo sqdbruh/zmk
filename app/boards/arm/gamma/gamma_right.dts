@@ -1,4 +1,4 @@
-#include "gamma.dtsi"
+#include "gamma_halves.dts"
 
 &default_transform {
     col-offset = <22>;
