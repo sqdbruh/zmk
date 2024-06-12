@@ -17,6 +17,7 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include <zmk/events/activity_state_changed.h>
 #include <zmk/events/position_state_changed.h>
 #include <zmk/events/sensor_event.h>
+#include <zmk/events/split_peripheral_status_changed.h>
 
 #include <zmk/pm.h>
 
@@ -68,8 +69,18 @@ int activity_event_listener(const zmk_event_t *eh) {
 void activity_work_handler(struct k_work *work) {
     int32_t current = k_uptime_get();
     int32_t inactive_time = current - activity_last_uptime;
+
 #if IS_ENABLED(CONFIG_ZMK_SLEEP)
-    if (inactive_time > MAX_SLEEP_MS && !is_usb_power_present()) {
+    bool isConnectedToHost = false;
+#if IS_ENABLED(CONFIG_ZMK_BLE)
+#if !IS_ENABLED(CONFIG_ZMK_SPLIT) || IS_ENABLED(CONFIG_ZMK_SPLIT_ROLE_CENTRAL)
+    isConnectedToHost = zmk_ble_active_profile_is_connected();
+#elif IS_ENABLED(CONFIG_ZMK_SPLIT)
+    isConnectedToHost = zmk_split_bt_peripheral_is_connected();
+#endif
+#endif
+
+    if (!isConnectedToHost && inactive_time > MAX_SLEEP_MS && !is_usb_power_present()) {
         // Put devices in suspend power mode before sleeping
         set_state(ZMK_ACTIVITY_SLEEP);
 

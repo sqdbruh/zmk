@@ -41,7 +41,7 @@
                 default_layer {
                         bindings = <
    &kp GRAVE    &kp Q   &kp W    &kp E    &kp R    &kp T    &kp Y    &kp U    &kp I       &kp O     &kp P      &kp LEFT_BRACKET
-   &check_bat    &kp A   &kp S    &kp D    &kp F    &kp G    &kp H    &kp J    &kp K       &kp L     &kp SEMI   &check_bat
+   &kp LCTRL    &kp A   &kp S    &kp D    &kp F    &kp G    &kp H    &kp J    &kp K       &kp L     &kp SEMI   &kp SQT
    &kp LALT     &kp Z   &kp X    &kp C    &kp V    &kp B    &kp N    &kp M    &kp COMMA   &kp DOT   &kp FSLH   &kp NON_US_BACKSLASH
                   &lt 1 TAB  &kp SPACE &mt LSHIFT ESC &retcapsword &kp BACKSPACE &lt 2 DEL
                         >;
@@ -69,7 +69,7 @@
    &sys_reset        &kp N1        &kp N2     &kp N3    &kp N4    &kp N5    &kp N6                            &kp N7     &kp N8         &kp N9      &kp N0   &sys_reset  
    &bt BT_CLR        &bt BT_SEL 0     &bt BT_SEL 1    &bt BT_SEL 2    &bt BT_SEL 3    &bt BT_SEL 4          &bt BT_SEL 4     &bt BT_SEL 3         &bt BT_SEL 2      &bt BT_SEL 1   &bt BT_SEL 0   &bt BT_CLR
    &bootloader   &out OUT_BLE     &out OUT_USB    &trans    &trans    &kp KP_NUMLOCK          &trans             &trans         &trans      &out OUT_USB   &out OUT_BLE   &bootloader
-                    	              &trans    &none     &trans                                          &trans     &none              &trans
+                    	              &trans    &check_bat     &trans                                          &trans     &check_bat              &trans
                         >;
                 };
         };

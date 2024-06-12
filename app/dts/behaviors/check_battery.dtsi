@@ -7,7 +7,7 @@
 / {
     behaviors {
         // Behavior can be invoked on peripherals, so name must be <= 8 characters.
-            /omit-if-no-ref/ check_bat: checkbat {
+            check_bat: checkbat {
             compatible = "zmk,behavior-check-battery";
             #binding-cells = <0>;
         };

@@ -10,6 +10,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/sensor.h>
 #include <zephyr/bluetooth/services/bas.h>
+#include <zmk/events/usb_conn_state_changed.h>
 
 #include <zephyr/logging/log.h>
 
@@ -166,6 +167,10 @@ static int battery_event_listener(const zmk_event_t *eh) {
         default:
             break;
         }
+    } else if (as_zmk_usb_conn_state_changed(eh)) {
+        if (!zmk_usb_is_powered()) {
+            zmk_battery_update(battery);
+        }
     }
     return -ENOTSUP;
 }
@@ -173,5 +178,8 @@ static int battery_event_listener(const zmk_event_t *eh) {
 ZMK_LISTENER(battery, battery_event_listener);
 
 ZMK_SUBSCRIPTION(battery, zmk_activity_state_changed);
+#if IS_ENABLED(CONFIG_USB_DEVICE_STACK)
+ZMK_SUBSCRIPTION(battery, zmk_usb_conn_state_changed);
+#endif /* IS_ENABLED(CONFIG_USB_DEVICE_STACK) */
 
 SYS_INIT(zmk_battery_init, APPLICATION, CONFIG_APPLICATION_INIT_PRIORITY);
