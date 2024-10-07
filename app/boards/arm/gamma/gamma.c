@@ -38,8 +38,6 @@ static const struct gpio_dt_spec led188_2 = GPIO_DT_SPEC_GET_OR(DT_NODELABEL(led
 static const struct gpio_dt_spec led188_3 = GPIO_DT_SPEC_GET_OR(DT_NODELABEL(led188_3), gpios, {0});
 static const struct gpio_dt_spec led188_4 = GPIO_DT_SPEC_GET_OR(DT_NODELABEL(led188_4), gpios, {0});
 static const struct gpio_dt_spec led188_5 = GPIO_DT_SPEC_GET_OR(DT_NODELABEL(led188_5), gpios, {0});
-static const struct gpio_dt_spec charging_enable =
-    GPIO_DT_SPEC_GET_OR(DT_NODELABEL(chrg_enable), gpios, {0});
 static const struct gpio_dt_spec charging_status =
     GPIO_DT_SPEC_GET_OR(DT_NODELABEL(chrg_status), gpios, {0});
 
@@ -76,29 +74,29 @@ static void disable_all_leds() {
     }
 }
 
-volatile int currentSegment;
-volatile bool disableThisTick;
+int currentSegment;
+int wait;
 
 static void display_digit(uint16_t digit) {
-    // if (disableThisTick) {
-    //     disable_all_leds();
-    //     disableThisTick = false;
-    // } else {
+    if (wait) {
+        wait--;
+        return;
+    }
+
     bool isSegmentSet = false;
     struct segment_info seg;
-    do {
-        uint16_t mask = (1 << currentSegment);
-        isSegmentSet = (mask & digit) == mask;
-        seg = segments[currentSegment];
-        currentSegment++;
-        if (currentSegment > ArrayCount(segments)) {
-            currentSegment = 0;
-        }
+    // do {
+    uint16_t mask = (1 << currentSegment);
+    isSegmentSet = (mask & digit) == mask;
+    seg = segments[currentSegment];
+    currentSegment++;
+    if (currentSegment > ArrayCount(segments)) {
+        currentSegment = 0;
+    }
 
-    } while (!isSegmentSet);
+    // } while (!isSegmentSet);
 
     if (isSegmentSet) {
-
         for (int ledPinIndex = 0; ledPinIndex < ArrayCount(led188); ledPinIndex++) {
             uint32_t val = NO;
             if (ledPinIndex == seg.high - 1) {
@@ -109,22 +107,25 @@ static void display_digit(uint16_t digit) {
             struct gpio_dt_spec pin = led188[ledPinIndex];
             gpio_pin_configure_dt(&pin, val);
         }
-
-        disableThisTick = true;
+        wait = 1;
+    } else {
+        for (int ledPinIndex = 0; ledPinIndex < ArrayCount(led188); ledPinIndex++) {
+            gpio_pin_configure_dt(&led188[ledPinIndex], NO);
+        }
+        wait = 1;
     }
-    // }
 }
 
 volatile bool showBattery;
 
 void stop_timer();
 
-static void seg_display_tick(struct k_work *work) {
+static void seg_display_tick() {
     bool charged = gpio_pin_get_dt(&charging_status);
     bool isConnected = zmk_split_bt_peripheral_is_connected();
     bool isPowered = zmk_usb_is_powered();
 
-    if (showBattery && !isPowered) {
+    if (showBattery) {
         uint8_t charge = zmk_battery_state_of_charge();
         display_digit(digits188[charge]);
     } else {
@@ -147,7 +148,8 @@ static void seg_display_tick(struct k_work *work) {
 }
 K_WORK_DEFINE(seg_display_tick_work, seg_display_tick);
 static void seg_display_tick_handler(struct k_timer *timer) {
-    k_work_submit_to_queue(zmk_workqueue_lowprio_work_q(), &seg_display_tick_work);
+    seg_display_tick();
+    // k_work_submit_to_queue(zmk_workqueue_lowprio_work_q(), &seg_display_tick_work);
 }
 K_TIMER_DEFINE(seg_display_tick_timer, seg_display_tick_handler, NULL);
 volatile bool isTimerOn;
@@ -161,13 +163,12 @@ void stop_timer() {
 
 static void start_timer() {
     if (!isTimerOn) {
-        k_timer_start(&seg_display_tick_timer, K_NO_WAIT, K_USEC(1000));
+        k_timer_start(&seg_display_tick_timer, K_NO_WAIT, K_USEC(350));
         isTimerOn = true;
     }
 }
 
 static int seg_display_init(void) {
-    gpio_pin_configure_dt(&charging_enable, GPIO_OUTPUT_ACTIVE);
     gpio_pin_configure_dt(&charging_status, GPIO_INPUT);
     showBattery = false;
     start_timer();

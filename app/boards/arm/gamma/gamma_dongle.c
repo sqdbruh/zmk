@@ -1,3 +1,4 @@
+#if false
 #if CONFIG_BOARD_GAMMA_DONGLE
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
@@ -70,4 +71,5 @@ static int led_init(void) {
 
 
 SYS_INIT(led_init, APPLICATION, CONFIG_APPLICATION_INIT_PRIORITY);
+#endif
 #endif
