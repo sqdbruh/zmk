@@ -64,18 +64,19 @@ Definition file: [zmk/app/dts/bindings/behaviors/zmk,behavior-hold-tap.yaml](htt
 
 Applies to: `compatible = "zmk,behavior-hold-tap"`
 
-| Property                      | Type     | Description                                                                                                    | Default            |
-| ----------------------------- | -------- | -------------------------------------------------------------------------------------------------------------- | ------------------ |
-| `#binding-cells`              | int      | Must be `<2>`                                                                                                  |                    |
-| `bindings`                    | phandles | A list of two behaviors (without parameters): one for hold and one for tap                                     |                    |
-| `flavor`                      | string   | Adjusts how the behavior chooses between hold and tap                                                          | `"hold-preferred"` |
-| `tapping-term-ms`             | int      | How long in milliseconds the key must be held to trigger a hold                                                |                    |
-| `quick-tap-ms`                | int      | Tap twice within this period (in milliseconds) to trigger a tap, even when held                                | -1 (disabled)      |
-| `require-prior-idle-ms`       | int      | Triggers a tap immediately if any non-modifier key was pressed within `require-prior-idle-ms` of the hold-tap. | -1 (disabled)      |
-| `retro-tap`                   | bool     | Triggers the tap behavior on release if no other key was pressed during a hold                                 | false              |
-| `hold-while-undecided`        | bool     | Triggers the hold behavior immediately on press and releases before a tap                                      | false              |
-| `hold-while-undecided-linger` | bool     | Continues to hold the hold behavior until after the tap is released                                            | false              |
-| `hold-trigger-key-positions`  | array    | If set, pressing the hold-tap and then any key position _not_ in the list triggers a tap.                      |                    |
+| Property                      | Type     | Description                                                                                                   | Default            |
+| ----------------------------- | -------- | ------------------------------------------------------------------------------------------------------------- | ------------------ |
+| `#binding-cells`              | int      | Must be `<2>`                                                                                                 |                    |
+| `bindings`                    | phandles | A list of two behaviors (without parameters): one for hold and one for tap                                    |                    |
+| `flavor`                      | string   | Adjusts how the behavior chooses between hold and tap                                                         | `"hold-preferred"` |
+| `tapping-term-ms`             | int      | How long in milliseconds the key must be held to trigger a hold                                               |                    |
+| `quick-tap-ms`                | int      | Tap twice within this period (in milliseconds) to trigger a tap, even when held                               | -1 (disabled)      |
+| `require-prior-idle-ms`       | int      | Triggers a tap immediately if any non-modifier key was pressed within `require-prior-idle-ms` of the hold-tap | -1 (disabled)      |
+| `retro-tap`                   | bool     | Triggers the tap behavior on release if no other key was pressed during a hold                                | false              |
+| `hold-while-undecided`        | bool     | Triggers the hold behavior immediately on press and releases before a tap                                     | false              |
+| `hold-while-undecided-linger` | bool     | Continues to hold the hold behavior until after the tap is released                                           | false              |
+| `hold-trigger-key-positions`  | array    | If set, pressing the hold-tap and then any key position _not_ in the list triggers a tap                      |                    |
+| `hold-trigger-on-release`     | bool     | If set, delays the evaluation of `hold-trigger-key-positions` until key release                               | false              |
 
 This behavior forwards the first parameter it receives to the parameter of the first behavior specified in `bindings`, and second parameter to the parameter of the second behavior.
 
@@ -281,3 +282,23 @@ Applies to: `compatible = "zmk,behavior-tap-dance"`
 | `#binding-cells`  | int           | Must be `<0>`                                                                                |         |
 | `bindings`        | phandle array | A list of behaviors from which to select                                                     |         |
 | `tapping-term-ms` | int           | The maximum time (in milliseconds) between taps before an item from `bindings` is triggered. | 200     |
+
+## Two Axis Input
+
+This behavior is part of the core [pointing devices](../features/pointing.md) feature, and is used to generate X/Y and scroll input events. It is the underlying behavior used for the mouse [move](../keymaps/behaviors/mouse-emulation.md#mouse-move) and [scroll](../keymaps/behaviors/mouse-emulation.md#mouse-scroll) behaviors.
+
+### Devicetree
+
+Definition file: [zmk/app/dts/bindings/behaviors/zmk,behavior-input-two-axis.yaml](https://github.com/zmkfirmware/zmk/blob/main/app/dts/bindings/behaviors/zmk%2Cbehavior-input-two-axis.yaml)
+
+Applies to: `compatible = "zmk,behavior-input-two-axis"`
+
+| Property                | Type | Description                                                                                                                                                                                   | Default |
+| ----------------------- | ---- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| `#binding-cells`        | int  | Must be `<1>`                                                                                                                                                                                 |         |
+| `x-input-code`          | int  | The [relative event code](https://github.com/zmkfirmware/zephyr/blob/v3.5.0%2Bzmk-fixes/include/zephyr/dt-bindings/input/input-event-codes.h#L245) for generated input events for the X-axis. |         |
+| `y-input-code`          | int  | The [relative event code](https://github.com/zmkfirmware/zephyr/blob/v3.5.0%2Bzmk-fixes/include/zephyr/dt-bindings/input/input-event-codes.h#L245) for generated input events for the Y-axis. |         |
+| `trigger-period-ms`     | int  | How many milliseconds between generated input events based on the current speed/direction.                                                                                                    | 16      |
+| `delay-ms`              | int  | How many milliseconds to delay any processing or event generation when first pressed.                                                                                                         | 0       |
+| `time-to-max-speed-ms`  | int  | How many milliseconds it takes to accelerate to the curren max speed.                                                                                                                         | 0       |
+| `acceleration-exponent` | int  | The acceleration exponent to apply: `0` - uniform speed, `1` - uniform acceleration, `2` - linear acceleration                                                                                | 1       |
