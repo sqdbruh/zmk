@@ -109,7 +109,7 @@ badd +11 boards/arm/ferris/Kconfig.defconfig
 badd +1 boards/arm/ferris/Kconfig.board
 badd +240 ~/AppData/Local/nvim/init.vim
 badd +310 include/dt-bindings/zmk/keys.h
-badd +170 src/battery.c
+badd +28 src/battery.c
 badd +250 boards/shields/nice_view/widgets/status.c
 badd +98 boards/arm/gamma/digits.h
 badd +1 boards/arm/corneish_zen/custom_status_screen.h
@@ -275,7 +275,7 @@ badd +112 Session.vim
 badd +110 src/usb_hid.c
 badd +1 boards/arm/gamma_mk3/CMakeLists.txt
 badd +125 boards/arm/gamma/gamma_seg.c
-badd +541 boards/arm/gamma/gamma.c
+badd +369 boards/arm/gamma/gamma.c
 badd +35 boards/arm/nice60/nice60.dts
 badd +12 boards/shields/kyria/kyria_rev3.keymap
 badd +1 boards/shields/kyria/kyria_rev2.conf
@@ -328,19 +328,19 @@ setlocal fdn=20
 setlocal fen
 silent! normal! zE
 let &fdl = &fdl
-let s:l = 1 - ((0 * winheight(0) + 26) / 52)
+let s:l = 126 - ((26 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 1
-normal! 0
+keepjumps 126
+normal! 044|
 wincmd w
 argglobal
 if bufexists(fnamemodify("boards/arm/gamma/gamma.c", ":p")) | buffer boards/arm/gamma/gamma.c | else | edit boards/arm/gamma/gamma.c | endif
 if &buftype ==# 'terminal'
   silent file boards/arm/gamma/gamma.c
 endif
-balt boards/arm/gamma/gamma.dtsi
+balt src/battery.c
 setlocal fdm=manual
 setlocal fde=0
 setlocal fmr={{{,}}}
@@ -351,13 +351,14 @@ setlocal fdn=20
 setlocal fen
 silent! normal! zE
 let &fdl = &fdl
-let s:l = 542 - ((16 * winheight(0) + 26) / 52)
+let s:l = 1 - ((0 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 542
+keepjumps 1
 normal! 0
 wincmd w
+2wincmd w
 exe 'vert 1resize ' . ((&columns * 136 + 137) / 274)
 exe 'vert 2resize ' . ((&columns * 137 + 137) / 274)
 tabnext 1

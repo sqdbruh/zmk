@@ -42,7 +42,7 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #define CURRENT_BRIGHTNESS 255
 
 #define ArrayCount(Array) (sizeof(Array) / sizeof((Array)[0]))
-float remap(float value, float fromLow, float fromHigh, float toLow, float toHigh) {
+static float remap(float value, float fromLow, float fromHigh, float toLow, float toHigh) {
     return toLow + (value - fromLow) * (toHigh - toLow) / (fromHigh - fromLow);
 }
 
@@ -88,109 +88,46 @@ static void update_leds_color(uint8_t r, uint8_t g, uint8_t b) {
     update_leds();
 }
 
-void soc_to_led_buffer(uint8_t soc, struct led_rgb *buffer) {
+static void soc_to_led_buffer(uint8_t soc, struct led_rgb *buffer) {
     int num_leds = STRIP_NUM_PIXELS;
-    int segment_size = 100 / num_leds; // Percentage of charge per segment
 
+    // Calculate how many LEDs should be fully lit based on SoC
+    int full_leds = (soc * num_leds) / 100;
+    if (full_leds == 0)
+        full_leds = 1; // Ensure at least one LED is lit
+    if (soc > 90) {
+        full_leds = num_leds;
+    }
+
+    // Set the color for each LED
     for (int i = 0; i < num_leds; i++) {
         uint8_t r = 0, g = 0, b = 0;
 
-        // Determine the color based on SoC and segment
-        if (soc >= (i + 1) * segment_size) {
-            // Fully lit segment
+        // Determine brightness based on the fully lit segment count
+        if (i < full_leds) {
             if (i == 0) {
                 r = CURRENT_BRIGHTNESS; // Red for the first LED
             } else if (i == 1) {
                 r = CURRENT_BRIGHTNESS;
-                g = CURRENT_BRIGHTNESS * 0.7f; // Yellow for the second LED
+                g = (uint8_t)(CURRENT_BRIGHTNESS * 0.7f); // Yellow for the second LED
             } else {
                 g = CURRENT_BRIGHTNESS; // Green for the remaining LEDs
             }
-        } else if (soc > i * segment_size) {
-            // Partially lit segment
-            float t = (float)(soc - i * segment_size) / segment_size; // Normalize to 0-1
-            uint8_t brightness = (uint8_t)(t * CURRENT_BRIGHTNESS);
-
-            if (i == 0) {
-                r = brightness; // Red
-            } else if (i == 1) {
-                r = brightness;
-                g = brightness * 0.7f; // Yellow
-            } else {
-                g = brightness; // Green
-            }
         }
 
-        // Set the calculated color in the buffer
+        // Assign calculated colors to the buffer
         buffer[i].r = r;
         buffer[i].g = g;
         buffer[i].b = b;
     }
 }
 
+#define CHECK_BATTERY_EVERY 10000
+int tickToCheckBattery = CHECK_BATTERY_EVERY;
 volatile bool showBattery;
 volatile bool showBatteryDisplay;
 volatile bool isPowered;
 volatile bool isConnected;
-
-static void hsv_to_rgb(uint16_t h, uint8_t s, uint8_t v, struct led_rgb *rgb) {
-    uint8_t region;
-    uint16_t remainder;
-    uint8_t p, q, t;
-
-    if (s == 0) {
-        // When saturation is 0, color is grayscale (R = G = B = value)
-        rgb->r = v;
-        rgb->g = v;
-        rgb->b = v;
-        return;
-    }
-
-    // Ensure hue is within [0, 359]
-    h = h % 360;
-
-    // Divide hue by 60 to get the region (0 to 5)
-    region = h / 60;
-    // Calculate remainder within the region
-    remainder = (h - (region * 60)) * 255 / 60;
-
-    p = (v * (255 - s)) / 255;
-    q = (v * (255 - (s * remainder) / 255)) / 255;
-    t = (v * (255 - (s * (255 - remainder) / 255))) / 255;
-
-    switch (region) {
-    case 0:
-        rgb->r = v;
-        rgb->g = t;
-        rgb->b = p;
-        break;
-    case 1:
-        rgb->r = q;
-        rgb->g = v;
-        rgb->b = p;
-        break;
-    case 2:
-        rgb->r = p;
-        rgb->g = v;
-        rgb->b = t;
-        break;
-    case 3:
-        rgb->r = p;
-        rgb->g = q;
-        rgb->b = v;
-        break;
-    case 4:
-        rgb->r = t;
-        rgb->g = p;
-        rgb->b = v;
-        break;
-    default:
-        rgb->r = v;
-        rgb->g = p;
-        rgb->b = q;
-        break;
-    }
-}
 
 struct gamma_led_state {
     void (*onTick)(struct gamma_led_state *);
@@ -210,20 +147,16 @@ struct gamma_led_queue {
 
 volatile struct gamma_led_queue led_queue;
 
-// Инициализация очереди
 static void init_queue(volatile struct gamma_led_queue *q) {
     q->head = 0;
     q->tail = 0;
     q->count = 0;
 }
 
-// Проверка на полноту очереди
 static bool is_queue_full(volatile struct gamma_led_queue *q) { return q->count == QUEUE_SIZE; }
 
-// Проверка на пустоту очереди
 static bool is_queue_empty(volatile struct gamma_led_queue *q) { return q->count == 0; }
 
-// Добавление элемента в очередь
 static bool enqueue(volatile struct gamma_led_queue *q, struct gamma_led_state value) {
     if (is_queue_full(q)) {
         return false;
@@ -235,7 +168,6 @@ static bool enqueue(volatile struct gamma_led_queue *q, struct gamma_led_state v
     return true;
 }
 
-// Удаление элемента из очереди
 static bool dequeue(volatile struct gamma_led_queue *q, struct gamma_led_state *value) {
     if (is_queue_empty(q)) {
         return false;
@@ -247,27 +179,25 @@ static bool dequeue(volatile struct gamma_led_queue *q, struct gamma_led_state *
     return true;
 }
 
-static uint16_t hue = 0;
-static int rc;
 static struct gamma_led_state currentState;
 
 void startup_tick(struct gamma_led_state *state) {
     uint8_t soc = zmk_battery_state_of_charge();
-    soc = 100; // Ensure full SoC for the startup animation
     int num_leds = STRIP_NUM_PIXELS;
 
     // Calculate how many LEDs should be fully lit based on SoC
     int full_leds = (soc * num_leds) / 100;
+    if (full_leds == 0)
+        full_leds = 1; // Ensure at least one LED is lit
 
-    // Ensure at least the first red LED is lit
-    if (full_leds == 0) {
-        full_leds = 1;
+    if (soc > 90) {
+        full_leds = num_leds;
     }
 
     // Calculate fade-in and fade-out factors
     float fade_factor = 1.0f;
     uint32_t fade_in_ticks = (state->durationInTicks * 30) / 100;       // First 10% for fade-in
-    uint32_t fade_out_start_tick = (state->durationInTicks * 80) / 100; // Last 20% for fade-out
+    uint32_t fade_out_start_tick = (state->durationInTicks * 80) / 100; // Last 20% for fadie-out
 
     if (state->currentTick <= fade_in_ticks) {
         // Fade-in: Brightness increases from 0 to 1 during the first 10% of the animation
@@ -408,26 +338,6 @@ void battery_charging_tick() {
     update_leds(); // Update the LED strip
 }
 
-void battery_tick(struct gamma_led_state *state) {
-    uint8_t soc = zmk_battery_state_of_charge();
-    float brightness = 0.0f;
-    if (state->t01 < 0.8f) {
-        brightness = remap(state->t01, 0.0f, 0.8f, 0.0f, 1.0f);
-    } else {
-        brightness = remap(state->t01, 0.8f, 1.0f, 1.0f, 0.0f);
-    }
-    int v = brightness * 255;
-    buffer_all_leds_color(0, 0, 0);
-    if (soc < 20) {
-        buffer_single_led_color(BATTERY_LED, v, 0, 0);
-    } else if (soc < 40) {
-        buffer_single_led_color(BATTERY_LED, v, v, 0);
-    } else {
-        buffer_single_led_color(BATTERY_LED, 0, v, 0);
-    }
-    update_leds();
-}
-
 void ble_connected_tick(struct gamma_led_state *state) {
     float brightness = 0.0f;
     if (state->t01 < 0.8f) {
@@ -441,19 +351,24 @@ void ble_connected_tick(struct gamma_led_state *state) {
     update_leds();
 }
 
-void rainbow_tick(struct gamma_led_state *state) {
-    LOG_INF("Rainbow tick. Current tick: %i ", state->currentTick);
-    for (int i = 0; i < STRIP_NUM_PIXELS; i++) {
-        uint16_t pixel_hue = (hue + i * (360 / STRIP_NUM_PIXELS)) % 360;
-        hsv_to_rgb(pixel_hue, 255, 128, &leds_buffer[i]); // Полная насыщенность и половина яркости
-    }
+static void low_battery_tick(struct gamma_led_state *state) {
+    buffer_all_leds_color(0, 0, 0);
+    buffer_single_led_color(0, 100, 0, 0);
+    update_leds();
+}
 
-    rc = led_strip_update_rgb(strip, leds_buffer, STRIP_NUM_PIXELS);
-    if (rc) {
-        LOG_ERR("Couldn't update strip: %d", rc);
-    }
+static bool showingLowBattery;
 
-    hue = (hue + 1) % 360;
+static void on_show_low_battery_complete() { showingLowBattery = false; }
+
+static void show_low_battery_animation() {
+    showingLowBattery = true;
+    struct gamma_led_state state = {};
+    state.onTick = low_battery_tick;
+    state.currentTick = 0;
+    state.onComplete = on_show_low_battery_complete;
+    state.durationInTicks = 500;
+    enqueue(&led_queue, state);
 }
 
 static void gamma_tick(struct k_work *work) {
@@ -475,8 +390,18 @@ static void gamma_tick(struct k_work *work) {
             gpio_pin_set_dt(&led_enable, 1);
             battery_charging_tick();
         } else {
-            update_leds_color(0, 0, 0);
-            gpio_pin_set_dt(&led_enable, 0);
+            if (tickToCheckBattery-- <= 0) {
+                tickToCheckBattery = CHECK_BATTERY_EVERY;
+                uint8_t soc = zmk_battery_state_of_charge();
+                if (soc < 10) {
+                    if (!showBatteryDisplay) {
+                        show_low_battery_animation();
+                    }
+                }
+            } else {
+                update_leds_color(0, 0, 0);
+                gpio_pin_set_dt(&led_enable, 0);
+            }
         }
     }
 }
@@ -547,7 +472,6 @@ static int gamma_init(void) {
     LOG_INF("Init queue");
     init_queue(&led_queue);
     show_startup_animation();
-
     if (device_is_ready(strip)) {
         LOG_INF("Found LED strip device %s", strip->name);
     } else {
@@ -579,67 +503,48 @@ static int gamma_init(void) {
     return 0;
 }
 
-static void show_battery_fade_in_tick(struct gamma_led_state *state) {
-    uint8_t soc = zmk_battery_state_of_charge(); // Get the state of charge (0-100%)
-    struct led_rgb temp_buffer[STRIP_NUM_PIXELS];
+static float calc_fade_in_factor(struct gamma_led_state *state) {
+    float factor = (float)state->currentTick / (float)state->durationInTicks;
+    return factor > 1.0f ? 1.0f : factor;
+}
 
-    // Generate the target buffer for the current SoC
+static float calc_fade_out_factor(struct gamma_led_state *state) {
+    float factor = 1.0f - (float)state->currentTick / (float)state->durationInTicks;
+    return factor < 0.0f ? 0.0f : factor;
+}
+
+static void show_battery_fade_in_tick(struct gamma_led_state *state) {
+    uint8_t soc = zmk_battery_state_of_charge();
+    struct led_rgb temp_buffer[STRIP_NUM_PIXELS];
     soc_to_led_buffer(soc, temp_buffer);
 
-    // Calculate the fade-in factor
-    float fade_factor = (float)state->currentTick / (float)state->durationInTicks;
-    if (fade_factor > 1.0f)
-        fade_factor = 1.0f;
-
-    // Apply the fade factor to each LED
+    float fade_factor = calc_fade_in_factor(state);
     for (int i = 0; i < STRIP_NUM_PIXELS; i++) {
         leds_buffer[i].r = (uint8_t)(temp_buffer[i].r * fade_factor);
         leds_buffer[i].g = (uint8_t)(temp_buffer[i].g * fade_factor);
         leds_buffer[i].b = (uint8_t)(temp_buffer[i].b * fade_factor);
     }
-
-    // Update the LED strip
-    int rc = led_strip_update_rgb(strip, leds_buffer, STRIP_NUM_PIXELS);
-    if (rc) {
-        LOG_ERR("Couldn't update strip: %d", rc);
-    }
+    update_leds();
 }
 
 static void show_battery_fade_out_tick(struct gamma_led_state *state) {
-    uint8_t soc = zmk_battery_state_of_charge(); // Get the state of charge (0-100%)
+    uint8_t soc = zmk_battery_state_of_charge();
     struct led_rgb temp_buffer[STRIP_NUM_PIXELS];
-
-    // Generate the target buffer for the current SoC
     soc_to_led_buffer(soc, temp_buffer);
 
-    // Calculate the fade-out factor
-    float fade_factor = 1.0f - (float)state->currentTick / (float)state->durationInTicks;
-    if (fade_factor < 0.0f)
-        fade_factor = 0.0f;
-
-    // Apply the fade factor to each LED
+    float fade_factor = calc_fade_out_factor(state);
     for (int i = 0; i < STRIP_NUM_PIXELS; i++) {
         leds_buffer[i].r = (uint8_t)(temp_buffer[i].r * fade_factor);
         leds_buffer[i].g = (uint8_t)(temp_buffer[i].g * fade_factor);
         leds_buffer[i].b = (uint8_t)(temp_buffer[i].b * fade_factor);
     }
-
-    // Update the LED strip
-    int rc = led_strip_update_rgb(strip, leds_buffer, STRIP_NUM_PIXELS);
-    if (rc) {
-        LOG_ERR("Couldn't update strip: %d", rc);
-    }
+    update_leds();
 }
 
 static void show_battery_static_tick() {
-    uint8_t soc = zmk_battery_state_of_charge(); // Get the state of charge (0-100%)
+    uint8_t soc = zmk_battery_state_of_charge();
     soc_to_led_buffer(soc, leds_buffer);
-
-    // Update the LED strip
-    int rc = led_strip_update_rgb(strip, leds_buffer, STRIP_NUM_PIXELS);
-    if (rc) {
-        LOG_ERR("Couldn't update strip: %d", rc);
-    }
+    update_leds();
 }
 
 static void check_show_battery_animation();
@@ -682,10 +587,12 @@ static void check_show_battery_animation() {
 }
 
 void show_battery() {
-    showBattery = true;
-    if (!showBatteryDisplay) {
-        showBatteryDisplay = true;
-        start_show_battery_animation();
+    if (!isPowered) {
+        showBattery = true;
+        if (!showBatteryDisplay) {
+            showBatteryDisplay = true;
+            start_show_battery_animation();
+        }
     }
 }
 void hide_battery() { showBattery = false; }
