@@ -49,9 +49,9 @@ badd +43 boards/arm/corneish_zen/custom_status_screen.c
 badd +98 build/left/zephyr/include/generated/autoconf.h
 badd +19 boards/arm/corneish_zen/widgets/battery_status.h
 badd +90 boards/arm/corneish_zen/widgets/battery_status.c
-badd +76 src/display/widgets/battery_status.c
+badd +66 src/display/widgets/battery_status.c
 badd +36 include/zmk/event_manager.h
-badd +20 boards/arm/corneish_zen/widgets/peripheral_status.c
+badd +32 boards/arm/corneish_zen/widgets/peripheral_status.c
 badd +1 boards/arm/corneish_zen/widgets/icons/batt_0.c
 badd +1 boards/arm/corneish_zen/corneish_zen_v2.yaml
 badd +1 boards/arm/corneish_zen/corneish_zen.keymap
@@ -63,7 +63,7 @@ badd +15 boards/arm/corneish_zen/corneish_zen_v1.zmk.yml
 badd +2 boards/arm/nice_nano/nice_nano_defconfig
 badd +1 boards/arm/nice_nano/nice_nano.yaml
 badd +17 src/main.c
-badd +15 src/display/main.c
+badd +122 src/display/main.c
 badd +58 C:/dev/MegaApp/Assets/Scripts/Core/Infrastructure/UserAuth/AuthService/ServerAuthService.cs
 badd +1 boards/arm/corneish_zen/Kconfig
 badd +5 boards/arm/corneish_zen/corneish_zen.conf
@@ -90,14 +90,14 @@ badd +11 C:/dev/zmk/zephyr/dts/arm/nordic/nrf52840_qiaa.dtsi
 badd +1 C:/dev/zmk/zephyr/dts/arm/nordic/nrf52840.dtsi
 badd +1 boards/arm/gamma/board.cmake
 badd +69 boards/arm/gamma/Kconfig.defconfig
-badd +53 boards/arm/gamma/gamma.keymap
+badd +25 boards/arm/gamma/gamma.keymap
 badd +1 boards/arm/gamma/gamma.yaml
 badd +4 boards/arm/gamma/gamma.zmk.yml
 badd +1 boards/arm/nrf52840_m2/board.cmake
 badd +2 boards/arm/glove80/CMakeLists.txt
 badd +1 boards/arm/nice60/board.cmake
 badd +1 boards/arm/gamma/gamma.conf
-badd +2 boards/arm/gamma/Kconfig
+badd +1 boards/arm/gamma/Kconfig
 badd +3 boards/arm/ferris/ferris_rev02_defconfig
 badd +1 boards/arm/ferris/ferris_rev02.zmk.yml
 badd +1 boards/arm/ferris/ferris_rev02.yaml
@@ -107,21 +107,20 @@ badd +1 boards/arm/ferris/board.cmake
 badd +1 boards/arm/ferris/README.md
 badd +11 boards/arm/ferris/Kconfig.defconfig
 badd +1 boards/arm/ferris/Kconfig.board
-badd +189 boards/arm/gamma/gamma.c
 badd +240 ~/AppData/Local/nvim/init.vim
 badd +310 include/dt-bindings/zmk/keys.h
-badd +34 src/battery.c
-badd +85 boards/shields/nice_view/widgets/status.c
+badd +170 src/battery.c
+badd +250 boards/shields/nice_view/widgets/status.c
 badd +98 boards/arm/gamma/digits.h
 badd +1 boards/arm/corneish_zen/custom_status_screen.h
 badd +9 include/zmk/battery.h
 badd +16 include/zmk/usb.h
-badd +12 include/zmk/events/battery_state_changed.h
+badd +18 include/zmk/events/battery_state_changed.h
 badd +99 build/zephyr/include/generated/syscalls/sensor.h
 badd +21 src/behaviors/behavior_hold_tap.c
-badd +76 src/activity.c
+badd +74 src/activity.c
 badd +274 tests/ble/central/src/main.c
-badd +239 src/ble.c
+badd +475 src/ble.c
 badd +1 boards/arm/glove80/usb_serial_number.c
 badd +29 boards/arm/planck/planck_rev6.dts
 badd +23 boards/arm/planck/planck_rev6.keymap
@@ -136,7 +135,7 @@ badd +228 src/behaviors/behavior_macro.c
 badd +50 src/behaviors/behavior_reset.c
 badd +74 src/kscan.c
 badd +542 src/combo.c
-badd +192 src/backlight.c
+badd +21 src/backlight.c
 badd +329 src/keymap.c
 badd +32 boards/arm/nrfmicro/nrfmicro_13.dts
 badd +1 dts/bindings/behaviors/zero_param.yaml
@@ -155,7 +154,7 @@ badd +36 src/behaviors/behavior_bt.c
 badd +21 src/behaviors/behavior_bat_display.c
 badd +7 src/behaviors/behavior_sensor_rotate.c
 badd +71 src/behaviors/behavior_sticky_key.c
-badd +1 src/behaviors/behavior_tap_dance.c
+badd +218 src/behaviors/behavior_tap_dance.c
 badd +75 src/behaviors/behavior_ext_power.c
 badd +30 boards/arm/corneish_zen/corneish_zen_v1_right_defconfig
 badd +37 boards/arm/puchi_ble/puchi_ble_v1.dts
@@ -170,15 +169,15 @@ badd +305 C:/dev/Adafruit_nRF52_Bootloader/src/boards/boards.c
 badd +51 C:/dev/zmk/zephyr/include/zephyr/drivers/gpio.h
 badd +44 C:/dev/zmk/zephyr/include/zephyr/bluetooth/services/bas.h
 badd +75 boards/shields/zmk_uno/zmk_uno.dtsi
-badd +36 boards/arm/gamma/gamma_left_defconfig
-badd +39 CMakeLists.txt
-badd +46 boards/arm/gamma/gamma.dtsi
+badd +1 boards/arm/gamma/gamma_left_defconfig
+badd +72 CMakeLists.txt
+badd +71 boards/arm/gamma/gamma.dtsi
 badd +1 boards/arm/gamma/gamma_left.dts
-badd +1 boards/arm/gamma/gamma_right.dts
-badd +40 boards/arm/gamma/gamma_right_defconfig
+badd +3 boards/arm/gamma/gamma_right.dts
+badd +25 boards/arm/gamma/gamma_right_defconfig
 badd +20 boards/shields/zodiark/Kconfig.defconfig
 badd +25 boards/arm/nrfmicro/nrfmicro_11_flipped_defconfig
-badd +15 boards/arm/gamma/gamma_dongle_defconfig
+badd +20 boards/arm/gamma/gamma_dongle_defconfig
 badd +10 boards/shields/settings_reset/Kconfig.defconfig
 badd +9 include/zmk/split/bluetooth/peripheral.h
 badd +75 boards/arm/gamma/gamma_dongle.c
@@ -190,12 +189,12 @@ badd +87 C:/dev/zmk/zephyr/include/zephyr/drivers/pwm.h
 badd +370 C:/dev/zmk/zephyr/include/zephyr/bluetooth/conn.h
 badd +700 src/split/bluetooth/central.c
 badd +14 include/zmk/split/bluetooth/central.h
-badd +19 src/hid_indicators.c
+badd +33 src/hid_indicators.c
 badd +1 include/zmk/hid_indicators.h
 badd +26 boards/arm/gamma/gamma_halves.dts
 badd +126 build/zephyr/include/generated/syscalls/kernel.h
 badd +176 build/zephyr/include/generated/syscalls/gpio.h
-badd +33 src/usb.c
+badd +34 src/usb.c
 badd +15 dts/behaviors/key_press.dtsi
 badd +14 dts/behaviors/bluetooth.dtsi
 badd +1 dts/behaviors/sticky_key.dtsi
@@ -206,7 +205,7 @@ badd +14 dts/behaviors/reset.dtsi
 badd +15 dts/behaviors/check_battery.dtsi
 badd +11 dts/behaviors/gresc.dtsi
 badd +1 dts/behaviors/ext_power.dtsi
-badd +12 dts/behaviors.dtsi
+badd +1 dts/behaviors.dtsi
 badd +1 src/behaviors/behavior_none.c
 badd +129 src/behaviors/behavior_rgb_underglow.c
 badd +3 boards/arm/gamma/gamma.h
@@ -223,14 +222,14 @@ badd +1 dts/behaviors/caps_word.dtsi
 badd +1 dts/behaviors/backlight.dtsi
 badd +1 dts/behaviors/macros.dtsi
 badd +9 dts/behaviors/mod_tap.dtsi
-badd +167 src/split/bluetooth/peripheral.c
+badd +28 src/split/bluetooth/peripheral.c
 badd +3 include/zmk/check_battery.h
 badd +20 include/zmk/hid.h
 badd +1 include/zmk/kscan.h
 badd +1 include/zmk/matrix.h
 badd +12 include/zmk/mouse.h
 badd +20 src/mouse.c
-badd +279 src/endpoints.c
+badd +25 src/endpoints.c
 badd +124 C:/dev/zmk/zephyr/include/zephyr/sys/util_macro.h
 badd +50 C:/dev/zmk/zephyr/include/zephyr/sys/util_internal.h
 badd +2 tests/wpm/2-multiple_keypress/native_posix_64.conf
@@ -239,13 +238,13 @@ badd +43 src/display/status_screen.c
 badd +1 module/dts/bindings/display/gooddisplay,il0323.yaml
 badd +22 module/drivers/display/il0323.c
 badd +1 module/drivers/display/il0323_regs.h
-badd +44 src/display/widgets/peripheral_status.c
+badd +43 src/display/widgets/peripheral_status.c
 badd +1 C:/dev/zmk/zephyr/include/zephyr/drivers/display.h
 badd +12 include/zmk/display/widgets/peripheral_status.h
 badd +10 src/events/battery_state_changed.c
 badd +166 C:/dev/zmk/zephyr/include/zephyr/sys/slist.h
 badd +45 C:/dev/zmk/zephyr/include/zephyr/sys/list_gen.h
-badd +498 src/rgb_underglow.c
+badd +246 src/rgb_underglow.c
 badd +250 C:/dev/zmk/zephyr/include/zephyr/settings/settings.h
 badd +7 include/dt-bindings/zmk/rgb.h
 badd +1290 C:/dev/zmk/zephyr/include/zephyr/kernel.h
@@ -263,7 +262,7 @@ badd +10 src/events/usb_conn_state_changed.c
 badd +1 src/events/endpoint_changed.c
 badd +1 src/events/ble_active_profile_changed.c
 badd +7 src/conditional_layer.c
-badd +1 src/behaviors/behavior_check_battery.c
+badd +43 src/behaviors/behavior_check_battery.c
 badd +1 src/behaviors/behavior_sensor_rotate_common.c
 badd +9 include/zmk/pm.h
 badd +16 include/zmk/events/usb_conn_state_changed.h
@@ -272,11 +271,33 @@ badd +1 boards/shields/settings_reset/settings_reset.conf
 badd +22 boards/arm/kbdfans_tofu65/kbdfans_tofu65_v2_defconfig
 badd +117 boards/arm/gamma/kabarga.c
 badd +23 boards/arm/ckp/Kconfig.defconfig
-badd +164 Session.vim
-badd +130 src/usb_hid.c
+badd +112 Session.vim
+badd +110 src/usb_hid.c
+badd +1 boards/arm/gamma_mk3/CMakeLists.txt
+badd +125 boards/arm/gamma/gamma_seg.c
+badd +541 boards/arm/gamma/gamma.c
+badd +35 boards/arm/nice60/nice60.dts
+badd +12 boards/shields/kyria/kyria_rev3.keymap
+badd +1 boards/shields/kyria/kyria_rev2.conf
+badd +1 boards/shields/kyria/kyria_rev3.dtsi
+badd +1 include/zmk/sensors.h
+badd +100 src/hid_listener.c
+badd +16 include/zmk/events/split_peripheral_status_changed.h
+badd +10 src/events/split_peripheral_status_changed.c
+badd +91 boards/shields/nice_view/widgets/peripheral_status.c
+badd +116 src/split/bluetooth/service.c
+badd +1 src/display/widgets/output_status.c
+badd +18 include/zmk/events/endpoint_changed.h
+badd +17 include/zmk/events/ble_active_profile_changed.h
+badd +14 include/zmk/ble/profile.h
+badd +222 src/studio/gatt_rpc_transport.c
+badd +1 src/display/widgets/CMakeLists.txt
+badd +1 src/display/widgets/Kconfig
+badd +69 include/zmk/endpoints.h
+badd +11 boards/shields/nice_view/CMakeLists.txt
 argglobal
 %argdel
-edit src/behaviors/behavior_check_battery.c
+edit boards/arm/gamma/gamma.c
 let s:save_splitbelow = &splitbelow
 let s:save_splitright = &splitright
 set splitbelow splitright
@@ -296,7 +317,7 @@ set winwidth=1
 exe 'vert 1resize ' . ((&columns * 136 + 137) / 274)
 exe 'vert 2resize ' . ((&columns * 137 + 137) / 274)
 argglobal
-balt boards/arm/gamma/gamma_left_defconfig
+balt boards/arm/gamma/gamma.dtsi
 setlocal fdm=manual
 setlocal fde=0
 setlocal fmr={{{,}}}
@@ -307,19 +328,19 @@ setlocal fdn=20
 setlocal fen
 silent! normal! zE
 let &fdl = &fdl
-let s:l = 28 - ((27 * winheight(0) + 26) / 52)
+let s:l = 1 - ((0 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 28
+keepjumps 1
 normal! 0
 wincmd w
 argglobal
-if bufexists(fnamemodify("src/usb_hid.c", ":p")) | buffer src/usb_hid.c | else | edit src/usb_hid.c | endif
+if bufexists(fnamemodify("boards/arm/gamma/gamma.c", ":p")) | buffer boards/arm/gamma/gamma.c | else | edit boards/arm/gamma/gamma.c | endif
 if &buftype ==# 'terminal'
-  silent file src/usb_hid.c
+  silent file boards/arm/gamma/gamma.c
 endif
-balt boards/arm/gamma/gamma.c
+balt boards/arm/gamma/gamma.dtsi
 setlocal fdm=manual
 setlocal fde=0
 setlocal fmr={{{,}}}
@@ -330,14 +351,13 @@ setlocal fdn=20
 setlocal fen
 silent! normal! zE
 let &fdl = &fdl
-let s:l = 130 - ((23 * winheight(0) + 26) / 52)
+let s:l = 542 - ((16 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 130
-normal! 024|
+keepjumps 542
+normal! 0
 wincmd w
-2wincmd w
 exe 'vert 1resize ' . ((&columns * 136 + 137) / 274)
 exe 'vert 2resize ' . ((&columns * 137 + 137) / 274)
 tabnext 1
@@ -355,7 +375,6 @@ if filereadable(s:sx)
 endif
 let &g:so = s:so_save | let &g:siso = s:siso_save
 set hlsearch
-nohlsearch
 let g:this_session = v:this_session
 let g:this_obsession = v:this_session
 doautoall SessionLoadPost
