@@ -62,7 +62,7 @@ badd +28 boards/arm/corneish_zen/widgets/icons/batt_100_chg.c
 badd +15 boards/arm/corneish_zen/corneish_zen_v1.zmk.yml
 badd +2 boards/arm/nice_nano/nice_nano_defconfig
 badd +1 boards/arm/nice_nano/nice_nano.yaml
-badd +17 src/main.c
+badd +28 src/main.c
 badd +122 src/display/main.c
 badd +58 C:/dev/MegaApp/Assets/Scripts/Core/Infrastructure/UserAuth/AuthService/ServerAuthService.cs
 badd +1 boards/arm/corneish_zen/Kconfig
@@ -90,8 +90,8 @@ badd +11 C:/dev/zmk/zephyr/dts/arm/nordic/nrf52840_qiaa.dtsi
 badd +1 C:/dev/zmk/zephyr/dts/arm/nordic/nrf52840.dtsi
 badd +1 boards/arm/gamma/board.cmake
 badd +69 boards/arm/gamma/Kconfig.defconfig
-badd +25 boards/arm/gamma/gamma.keymap
-badd +1 boards/arm/gamma/gamma.yaml
+badd +41 boards/arm/gamma/gamma.keymap
+badd +23 boards/arm/gamma/gamma.yaml
 badd +4 boards/arm/gamma/gamma.zmk.yml
 badd +1 boards/arm/nrf52840_m2/board.cmake
 badd +2 boards/arm/glove80/CMakeLists.txt
@@ -169,15 +169,15 @@ badd +305 C:/dev/Adafruit_nRF52_Bootloader/src/boards/boards.c
 badd +51 C:/dev/zmk/zephyr/include/zephyr/drivers/gpio.h
 badd +44 C:/dev/zmk/zephyr/include/zephyr/bluetooth/services/bas.h
 badd +75 boards/shields/zmk_uno/zmk_uno.dtsi
-badd +1 boards/arm/gamma/gamma_left_defconfig
-badd +72 CMakeLists.txt
-badd +71 boards/arm/gamma/gamma.dtsi
-badd +1 boards/arm/gamma/gamma_left.dts
-badd +3 boards/arm/gamma/gamma_right.dts
-badd +25 boards/arm/gamma/gamma_right_defconfig
+badd +44 boards/arm/gamma/gamma_left_defconfig
+badd +125 CMakeLists.txt
+badd +26 boards/arm/gamma/gamma.dtsi
+badd +2 boards/arm/gamma/gamma_left.dts
+badd +1 boards/arm/gamma/gamma_right.dts
+badd +29 boards/arm/gamma/gamma_right_defconfig
 badd +20 boards/shields/zodiark/Kconfig.defconfig
 badd +25 boards/arm/nrfmicro/nrfmicro_11_flipped_defconfig
-badd +20 boards/arm/gamma/gamma_dongle_defconfig
+badd +1 boards/arm/gamma/gamma_dongle_defconfig
 badd +10 boards/shields/settings_reset/Kconfig.defconfig
 badd +9 include/zmk/split/bluetooth/peripheral.h
 badd +75 boards/arm/gamma/gamma_dongle.c
@@ -275,7 +275,7 @@ badd +112 Session.vim
 badd +110 src/usb_hid.c
 badd +1 boards/arm/gamma_mk3/CMakeLists.txt
 badd +125 boards/arm/gamma/gamma_seg.c
-badd +369 boards/arm/gamma/gamma.c
+badd +60 boards/arm/gamma/gamma.c
 badd +35 boards/arm/nice60/nice60.dts
 badd +12 boards/shields/kyria/kyria_rev3.keymap
 badd +1 boards/shields/kyria/kyria_rev2.conf
@@ -295,9 +295,10 @@ badd +1 src/display/widgets/CMakeLists.txt
 badd +1 src/display/widgets/Kconfig
 badd +69 include/zmk/endpoints.h
 badd +11 boards/shields/nice_view/CMakeLists.txt
+badd +86 C:/dev/zmk/app/boards/arm/gamma/gamma2.c
 argglobal
 %argdel
-edit boards/arm/gamma/gamma.c
+edit boards/arm/gamma/gamma_right_defconfig
 let s:save_splitbelow = &splitbelow
 let s:save_splitright = &splitright
 set splitbelow splitright
@@ -317,7 +318,7 @@ set winwidth=1
 exe 'vert 1resize ' . ((&columns * 136 + 137) / 274)
 exe 'vert 2resize ' . ((&columns * 137 + 137) / 274)
 argglobal
-balt boards/arm/gamma/gamma.dtsi
+balt boards/arm/gamma/gamma_left_defconfig
 setlocal fdm=manual
 setlocal fde=0
 setlocal fmr={{{,}}}
@@ -328,19 +329,19 @@ setlocal fdn=20
 setlocal fen
 silent! normal! zE
 let &fdl = &fdl
-let s:l = 126 - ((26 * winheight(0) + 26) / 52)
+let s:l = 29 - ((28 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 126
-normal! 044|
+keepjumps 29
+normal! 09|
 wincmd w
 argglobal
 if bufexists(fnamemodify("boards/arm/gamma/gamma.c", ":p")) | buffer boards/arm/gamma/gamma.c | else | edit boards/arm/gamma/gamma.c | endif
 if &buftype ==# 'terminal'
   silent file boards/arm/gamma/gamma.c
 endif
-balt src/battery.c
+balt boards/arm/gamma/gamma.keymap
 setlocal fdm=manual
 setlocal fde=0
 setlocal fmr={{{,}}}
@@ -351,12 +352,12 @@ setlocal fdn=20
 setlocal fen
 silent! normal! zE
 let &fdl = &fdl
-let s:l = 1 - ((0 * winheight(0) + 26) / 52)
+let s:l = 624 - ((40 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 1
-normal! 0
+keepjumps 624
+normal! 018|
 wincmd w
 2wincmd w
 exe 'vert 1resize ' . ((&columns * 136 + 137) / 274)

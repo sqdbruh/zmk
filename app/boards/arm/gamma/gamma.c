@@ -5,6 +5,7 @@
 #include <math.h>
 #include <zephyr/kernel.h>
 #include <zephyr/device.h>
+#include <zephyr/pm/device.h>
 #include <zephyr/bluetooth/conn.h>
 #include <zephyr/drivers/i2c.h>
 #include <zephyr/devicetree.h>
@@ -45,6 +46,8 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 static float remap(float value, float fromLow, float fromHigh, float toLow, float toHigh) {
     return toLow + (value - fromLow) * (toHigh - toLow) / (fromHigh - fromLow);
 }
+
+static const struct device *spi_dev = DEVICE_DT_GET(DT_NODELABEL(spi3));
 
 static const struct gpio_dt_spec charging_status =
     GPIO_DT_SPEC_GET_OR(DT_NODELABEL(chrg_status), gpios, {0});
@@ -122,8 +125,8 @@ static void soc_to_led_buffer(uint8_t soc, struct led_rgb *buffer) {
     }
 }
 
-#define CHECK_BATTERY_EVERY 10000
-int tickToCheckBattery = CHECK_BATTERY_EVERY;
+// #define CHECK_BATTERY_EVERY 10000
+// int tickToCheckBattery = CHECK_BATTERY_EVERY;
 volatile bool showBattery;
 volatile bool showBatteryDisplay;
 volatile bool isPowered;
@@ -157,6 +160,27 @@ static bool is_queue_full(volatile struct gamma_led_queue *q) { return q->count 
 
 static bool is_queue_empty(volatile struct gamma_led_queue *q) { return q->count == 0; }
 
+static void gamma_tick(struct k_work *work);
+K_WORK_DEFINE(gamma_tick_work, gamma_tick);
+
+static void gamma_tick_handler(struct k_timer *timer) {
+    k_work_submit_to_queue(zmk_workqueue_lowprio_work_q(), &gamma_tick_work);
+}
+K_TIMER_DEFINE(gamma_tick_timer, gamma_tick_handler, NULL);
+
+static bool enable_led_power(bool enable) {
+    gpio_pin_set_dt(&led_enable, enable);
+    if (device_is_ready(spi_dev)) {
+        int ret = pm_device_action_run(spi_dev,
+                                       enable ? PM_DEVICE_ACTION_RESUME : PM_DEVICE_ACTION_SUSPEND);
+        if (ret < 0) {
+            LOG_ERR("Failed SPI3: %d", ret);
+        } else {
+            LOG_INF("SPI3 success.");
+        }
+    }
+}
+
 static bool enqueue(volatile struct gamma_led_queue *q, struct gamma_led_state value) {
     if (is_queue_full(q)) {
         return false;
@@ -165,6 +189,13 @@ static bool enqueue(volatile struct gamma_led_queue *q, struct gamma_led_state v
     q->tail = (q->tail + 1) % QUEUE_SIZE;
     q->count++;
     LOG_INF("Enqueue. Queue count: %i ", q->count);
+
+    if (k_timer_remaining_get(&gamma_tick_timer) == 0) {
+        enable_led_power(true);
+        k_timer_start(&gamma_tick_timer, K_NO_WAIT, K_MSEC(1));
+        LOG_INF("Start timer and led");
+    }
+
     return true;
 }
 
@@ -375,7 +406,6 @@ static void gamma_tick(struct k_work *work) {
     if (((currentState.currentTick < currentState.durationInTicks) && currentState.onTick) ||
         dequeue(&led_queue, &currentState)) {
         if (currentState.onTick) {
-            gpio_pin_set_dt(&led_enable, 1);
             currentState.t01 = (float)currentState.currentTick / currentState.durationInTicks;
             currentState.onTick(&currentState);
             currentState.currentTick++;
@@ -385,39 +415,22 @@ static void gamma_tick(struct k_work *work) {
                 }
             }
         }
+    } else if (isPowered) {
+        enable_led_power(true);
+        battery_charging_tick();
     } else {
-        if (isPowered) {
-            gpio_pin_set_dt(&led_enable, 1);
-            battery_charging_tick();
-        } else {
-            if (tickToCheckBattery-- <= 0) {
-                tickToCheckBattery = CHECK_BATTERY_EVERY;
-                uint8_t soc = zmk_battery_state_of_charge();
-                if (soc < 10) {
-                    if (!showBatteryDisplay) {
-                        show_low_battery_animation();
-                    }
-                }
-            } else {
-                update_leds_color(0, 0, 0);
-                gpio_pin_set_dt(&led_enable, 0);
-            }
-        }
+        update_leds_color(0, 0, 0);
+        k_timer_stop(&gamma_tick_timer);
+        enable_led_power(false);
+        LOG_INF("Disable timer and led");
     }
 }
-
-K_WORK_DEFINE(gamma_tick_work, gamma_tick);
-
-static void gamma_tick_handler(struct k_timer *timer) {
-    k_work_submit_to_queue(zmk_workqueue_lowprio_work_q(), &gamma_tick_work);
-}
-
-K_TIMER_DEFINE(gamma_tick_timer, gamma_tick_handler, NULL);
 
 static void show_ble_connected_animation() {
     LOG_INF("Show ble conn animation");
     struct gamma_led_state state = {};
     state.onTick = ble_connected_tick;
+    state.onComplete = 0;
     state.currentTick = 0;
     state.durationInTicks = 300;
     enqueue(&led_queue, state);
@@ -455,49 +468,46 @@ void show_startup_animation() {
 }
 
 static void gamma_init_delayed() {
+    LOG_INF("Init delayed");
     // NOTE(sqd): This will prevent first led tick from freezing for a while
     // (ZMK does something heavy on startup?)
     k_msleep(1);
 
-    LOG_INF("Displaying pattern on strip");
-    k_timer_start(&gamma_tick_timer, K_NO_WAIT, K_MSEC(1));
+    LOG_INF("Init queue");
+    init_queue(&led_queue);
+    show_startup_animation();
 
-    update_leds();
+    // update_leds_color(0, 0, 0);
 }
 
 K_WORK_DEFINE(gamma_init_delayed_work, gamma_init_delayed);
 
 static int gamma_init(void) {
     LOG_INF("Gamma init");
-    LOG_INF("Init queue");
-    init_queue(&led_queue);
-    show_startup_animation();
+    showBattery = false;
+
     if (device_is_ready(strip)) {
         LOG_INF("Found LED strip device %s", strip->name);
     } else {
         LOG_ERR("LED strip device %s is not ready", strip->name);
-        return 1;
     }
 
     int ret = gpio_pin_configure_dt(&led_enable, GPIO_OUTPUT);
     if (ret < 0) {
         printk("Error %d: failed to configure LED pin\n", ret);
-        return 1;
     }
+
+    enable_led_power(false);
 
     if (!device_is_ready(charging_status.port)) {
         printk("Error: Charging status GPIO device not ready.\n");
-        return 1;
     }
 
     ret = gpio_pin_configure_dt(&charging_status, GPIO_INPUT);
     if (ret < 0) {
         printk("Error: Failed to configure charging status GPIO (%d).\n", ret);
-        return 1;
     }
 
-    update_leds_color(0, 0, 0);
-    showBattery = false;
     k_work_submit_to_queue(zmk_workqueue_lowprio_work_q(), &gamma_init_delayed_work);
 
     return 0;
@@ -613,6 +623,11 @@ static int gamma_event_listener(const zmk_event_t *eh) {
     if (as_zmk_usb_conn_state_changed(eh)) {
         LOG_INF("USB CONN EVENT");
         isPowered = zmk_usb_is_powered();
+
+        if (isPowered) {
+            enable_led_power(true);
+            k_timer_start(&gamma_tick_timer, K_NO_WAIT, K_MSEC(1));
+        }
     }
 
     return 0;
