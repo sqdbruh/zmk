@@ -8,6 +8,7 @@
 #include <zephyr/pm/device.h>
 #include <zephyr/bluetooth/conn.h>
 #include <zephyr/drivers/i2c.h>
+#include <zephyr/drivers/sensor.h>
 #include <zephyr/devicetree.h>
 #include <zephyr/drivers/gpio.h>
 #include <zmk/events/keycode_state_changed.h>
@@ -48,6 +49,8 @@ static float remap(float value, float fromLow, float fromHigh, float toLow, floa
 }
 
 static const struct device *spi_dev = DEVICE_DT_GET(DT_NODELABEL(spi3));
+
+static const struct device *apds9960_dev = DEVICE_DT_GET(DT_NODELABEL(apds9960));
 
 static const struct gpio_dt_spec charging_status =
     GPIO_DT_SPEC_GET_OR(DT_NODELABEL(chrg_status), gpios, {0});
@@ -168,7 +171,7 @@ static void gamma_tick_handler(struct k_timer *timer) {
 }
 K_TIMER_DEFINE(gamma_tick_timer, gamma_tick_handler, NULL);
 
-static bool enable_led_power(bool enable) {
+static void enable_led_power(bool enable) {
     gpio_pin_set_dt(&led_enable, enable);
     if (device_is_ready(spi_dev)) {
         int ret = pm_device_action_run(spi_dev,
@@ -382,25 +385,25 @@ void ble_connected_tick(struct gamma_led_state *state) {
     update_leds();
 }
 
-static void low_battery_tick(struct gamma_led_state *state) {
-    buffer_all_leds_color(0, 0, 0);
-    buffer_single_led_color(0, 100, 0, 0);
-    update_leds();
-}
+// static void low_battery_tick(struct gamma_led_state *state) {
+//     buffer_all_leds_color(0, 0, 0);
+//     buffer_single_led_color(0, 100, 0, 0);
+//     update_leds();
+// }
 
-static bool showingLowBattery;
+// static bool showingLowBattery;
 
-static void on_show_low_battery_complete() { showingLowBattery = false; }
+// static void on_show_low_battery_complete() { showingLowBattery = false; }
 
-static void show_low_battery_animation() {
-    showingLowBattery = true;
-    struct gamma_led_state state = {};
-    state.onTick = low_battery_tick;
-    state.currentTick = 0;
-    state.onComplete = on_show_low_battery_complete;
-    state.durationInTicks = 500;
-    enqueue(&led_queue, state);
-}
+// static void show_low_battery_animation() {
+//     showingLowBattery = true;
+//     struct gamma_led_state state = {};
+//     state.onTick = low_battery_tick;
+//     state.currentTick = 0;
+//     state.onComplete = on_show_low_battery_complete;
+//     state.durationInTicks = 500;
+//     enqueue(&led_queue, state);
+// }
 
 static void gamma_tick(struct k_work *work) {
     if (((currentState.currentTick < currentState.durationInTicks) && currentState.onTick) ||
@@ -467,15 +470,57 @@ void show_startup_animation() {
     enqueue(&led_queue, state);
 }
 
+static void apds9960_timer_handler(struct k_timer *timer) {
+    if (!device_is_ready(apds9960_dev)) {
+        // If sensor is not ready, just exit silently (or log an error)
+        LOG_INF("APDS9960 not ready:");
+        return;
+    }
+
+    /* Trigger a new sample from the sensor. */
+    LOG_INF("APDS9960 fetching...");
+    int rc = sensor_sample_fetch(apds9960_dev);
+    if (rc < 0) {
+        LOG_ERR("APDS9960: sensor_sample_fetch failed (%d)", rc);
+        return;
+    }
+
+    /* Read proximity data from the sensor. */
+    LOG_INF("APDS9960 fetching proximity...");
+    struct sensor_value prox;
+    rc = sensor_channel_get(apds9960_dev, SENSOR_CHAN_PROX, &prox);
+    if (rc < 0) {
+        LOG_ERR("APDS9960: sensor_channel_get failed (%d)", rc);
+        return;
+    }
+
+    /*
+     * Usually prox.val1 holds the proximity reading.
+     * The driver returns an integer range 0..255, or 0..1023, depending on the driver specifics.
+     */
+    LOG_INF("APDS9960 prox: %d", prox.val1);
+}
+
+/* Define the timer (single shot or repeated) */
+K_TIMER_DEFINE(apds9960_timer, apds9960_timer_handler, NULL);
+
 static void gamma_init_delayed() {
+    k_msleep(10);
     LOG_INF("Init delayed");
     // NOTE(sqd): This will prevent first led tick from freezing for a while
     // (ZMK does something heavy on startup?)
-    k_msleep(1);
 
     LOG_INF("Init queue");
     init_queue(&led_queue);
     show_startup_animation();
+
+    if (!device_is_ready(apds9960_dev)) {
+        LOG_ERR("APDS9960 not ready");
+    } else {
+        // Start timer to trigger every 100 ms
+        LOG_INF("APDS9960 timer started (500 ms).");
+        k_timer_start(&apds9960_timer, K_MSEC(500), K_MSEC(500));
+    }
 
     // update_leds_color(0, 0, 0);
 }

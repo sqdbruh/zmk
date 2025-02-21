@@ -58,9 +58,6 @@
             , <&gpio0 3 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>
             , <&gpio1 10 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>
             , <&gpio1 11 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>
-
-            // NOTE(sqd): This is fucked up in schematic R3C3 connects to two pins on NRF
-            //, <&gpio0 31 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>
             ;
     };
 
@@ -88,6 +85,22 @@
         };
 };
 
+&i2c0 {
+    clock-frequency = <I2C_BITRATE_STANDARD>;
+    status = "okay";
+    pinctrl-0 = <&i2c0_default>;
+    pinctrl-1 = <&i2c0_sleep>;
+    pinctrl-names = "default", "sleep";
+
+    apds9960: sensor@39 {
+        status = "okay";
+        compatible = "avago,apds9960";
+        reg = <0x39>;
+        label = "APDS9960";
+        int-gpios = <&gpio0 7 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
+    };
+};
+
 &adc {
     status = "okay";
 };
@@ -112,6 +125,28 @@
 };
 
 &pinctrl {
+ /* I2C0 default (active) configuration */
+    i2c0_default: i2c0_default {
+        group1 {
+            /* TWIM (I2C master) SDA and SCL assignment.
+             * Instance 0 is used since we are configuring i2c0.
+             */
+            psels = <NRF_PSEL(TWIM_SDA, 0, 4)>,
+                    <NRF_PSEL(TWIM_SCL, 0, 5)>;
+            bias-pull-up;
+        };
+    };
+
+    /* I2C0 sleep (low-power) configuration */
+    i2c0_sleep: i2c0_sleep {
+        group1 {
+            psels = <NRF_PSEL(TWIM_SDA, 0, 4)>,
+                    <NRF_PSEL(TWIM_SCL, 0, 5)>;
+            low-power-enable;
+            bias-pull-up;
+        };
+    };
+
     spi3_default: spi3_default {
         group1 {
             psels = <NRF_PSEL(SPIM_MOSI, 0, 24)>;
