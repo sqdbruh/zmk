@@ -13,7 +13,7 @@ if &shortmess =~ 'A'
 else
   set shortmess=aoO
 endif
-badd +7 app/boards/arm/porne/porne.dts
+badd +1 app/boards/arm/porne/porne.dts
 badd +1 app/boards/arm/nice_nano/Kconfig
 badd +9 app/boards/arm/porne/Kconfig.board
 badd +12 app/boards/arm/nice_nano/Kconfig.board
@@ -90,7 +90,7 @@ badd +11 zephyr/dts/arm/nordic/nrf52840_qiaa.dtsi
 badd +1 zephyr/dts/arm/nordic/nrf52840.dtsi
 badd +6 app/boards/arm/gamma/board.cmake
 badd +69 app/boards/arm/gamma/Kconfig.defconfig
-badd +31 app/boards/arm/gamma/gamma.keymap
+badd +76 app/boards/arm/gamma/gamma.keymap
 badd +23 app/boards/arm/gamma/gamma.yaml
 badd +4 app/boards/arm/gamma/gamma.zmk.yml
 badd +1 app/boards/arm/nrf52840_m2/board.cmake
@@ -169,15 +169,15 @@ badd +305 C:/dev/Adafruit_nRF52_Bootloader/src/boards/boards.c
 badd +51 zephyr/include/zephyr/drivers/gpio.h
 badd +44 zephyr/include/zephyr/bluetooth/services/bas.h
 badd +75 app/boards/shields/zmk_uno/zmk_uno.dtsi
-badd +28 app/boards/arm/gamma/gamma_left_defconfig
+badd +50 app/boards/arm/gamma/gamma_left_defconfig
 badd +125 app/CMakeLists.txt
-badd +89 app/boards/arm/gamma/gamma.dtsi
+badd +24 app/boards/arm/gamma/gamma.dtsi
 badd +1 app/boards/arm/gamma/gamma_left.dts
 badd +1 app/boards/arm/gamma/gamma_right.dts
-badd +34 app/boards/arm/gamma/gamma_right_defconfig
+badd +43 app/boards/arm/gamma/gamma_right_defconfig
 badd +20 app/boards/shields/zodiark/Kconfig.defconfig
 badd +25 app/boards/arm/nrfmicro/nrfmicro_11_flipped_defconfig
-badd +28 app/boards/arm/gamma/gamma_dongle_defconfig
+badd +35 app/boards/arm/gamma/gamma_dongle_defconfig
 badd +10 app/boards/shields/settings_reset/Kconfig.defconfig
 badd +9 app/include/zmk/split/bluetooth/peripheral.h
 badd +75 app/boards/arm/gamma/gamma_dongle.c
@@ -223,7 +223,7 @@ badd +1 app/dts/behaviors/backlight.dtsi
 badd +1 app/dts/behaviors/macros.dtsi
 badd +9 app/dts/behaviors/mod_tap.dtsi
 badd +28 app/src/split/bluetooth/peripheral.c
-badd +3 app/include/zmk/check_battery.h
+badd +1 app/include/zmk/check_battery.h
 badd +20 app/include/zmk/hid.h
 badd +1 app/include/zmk/kscan.h
 badd +1 app/include/zmk/matrix.h
@@ -275,7 +275,7 @@ badd +112 app/Session.vim
 badd +110 app/src/usb_hid.c
 badd +1 app/boards/arm/gamma_mk3/CMakeLists.txt
 badd +125 app/boards/arm/gamma/gamma_seg.c
-badd +487 app/boards/arm/gamma/gamma.c
+badd +102 app/boards/arm/gamma/gamma.c
 badd +35 app/boards/arm/nice60/nice60.dts
 badd +12 app/boards/shields/kyria/kyria_rev3.keymap
 badd +1 app/boards/shields/kyria/kyria_rev2.conf
@@ -296,36 +296,26 @@ badd +1 app/src/display/widgets/Kconfig
 badd +69 app/include/zmk/endpoints.h
 badd +11 app/boards/shields/nice_view/CMakeLists.txt
 badd +86 app/boards/arm/gamma/gamma2.c
-badd +25 C:/dev/zmk/zephyr/drivers/sensor/apds9960/apds9960.c
-badd +227 C:/dev/zmk/zephyr/drivers/sensor/apds9960/apds9960.h
-badd +1 C:/dev/zmk/zephyr/drivers/sensor/apds9960/apds9960_trigger.c
-badd +542 C:/dev/zmk/zephyr/drivers/sensor/veml7700/veml7700.c
-badd +1 C:/dev/zmk/zephyr/drivers/sensor/voltage_divider/voltage.c
-badd +101 C:/dev/zmk/zephyr/drivers/sensor/opt3001/opt3001.c
-badd +20 C:/dev/zmk/zephyr/drivers/sensor/opt3001/opt3001.h
+badd +25 zephyr/drivers/sensor/apds9960/apds9960.c
+badd +227 zephyr/drivers/sensor/apds9960/apds9960.h
+badd +1 zephyr/drivers/sensor/apds9960/apds9960_trigger.c
+badd +542 zephyr/drivers/sensor/veml7700/veml7700.c
+badd +1 zephyr/drivers/sensor/voltage_divider/voltage.c
+badd +23 zephyr/drivers/sensor/opt3001/opt3001.c
+badd +23 zephyr/drivers/sensor/opt3001/opt3001.h
+badd +97 zephyr/drivers/sensor/vcnl4040/vcnl4040.c
+badd +1 zephyr/drivers/sensor/vcnl4040/vcnl4040_trigger.c
+badd +95 zephyr/drivers/sensor/vcnl4040/vcnl4040.h
+badd +1 app/include/drivers/input_processor.h
+badd +122 zephyr/include/zephyr/drivers/sensor/veml7700.h
+badd +28 zephyr/include/zephyr/drivers/sensor/opt3001.h
+badd +1 zephyr/include/zephyr/drivers/sensor/tsl2540.h
+badd +1 new
 argglobal
 %argdel
-edit C:/dev/zmk/zephyr/drivers/sensor/opt3001/opt3001.c
-let s:save_splitbelow = &splitbelow
-let s:save_splitright = &splitright
-set splitbelow splitright
-wincmd _ | wincmd |
-vsplit
-1wincmd h
-wincmd w
-let &splitbelow = s:save_splitbelow
-let &splitright = s:save_splitright
-wincmd t
-let s:save_winminheight = &winminheight
-let s:save_winminwidth = &winminwidth
-set winminheight=0
-set winheight=1
-set winminwidth=0
-set winwidth=1
-exe 'vert 1resize ' . ((&columns * 137 + 137) / 274)
-exe 'vert 2resize ' . ((&columns * 136 + 137) / 274)
+edit app/dts/behaviors/check_battery.dtsi
 argglobal
-balt C:/dev/zmk/zephyr/drivers/sensor/opt3001/opt3001.h
+balt app/include/zmk/check_battery.h
 setlocal fdm=manual
 setlocal fde=0
 setlocal fmr={{{,}}}
@@ -336,39 +326,12 @@ setlocal fdn=20
 setlocal fen
 silent! normal! zE
 let &fdl = &fdl
-let s:l = 128 - ((1 * winheight(0) + 26) / 52)
+let s:l = 1 - ((0 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 128
+keepjumps 1
 normal! 0
-wincmd w
-argglobal
-if bufexists(fnamemodify("app/boards/arm/gamma/gamma.c", ":p")) | buffer app/boards/arm/gamma/gamma.c | else | edit app/boards/arm/gamma/gamma.c | endif
-if &buftype ==# 'terminal'
-  silent file app/boards/arm/gamma/gamma.c
-endif
-balt app/boards/arm/gamma/gamma.dtsi
-setlocal fdm=manual
-setlocal fde=0
-setlocal fmr={{{,}}}
-setlocal fdi=#
-setlocal fdl=99
-setlocal fml=1
-setlocal fdn=20
-setlocal fen
-silent! normal! zE
-let &fdl = &fdl
-let s:l = 489 - ((28 * winheight(0) + 26) / 52)
-if s:l < 1 | let s:l = 1 | endif
-keepjumps exe s:l
-normal! zt
-keepjumps 489
-normal! 034|
-wincmd w
-2wincmd w
-exe 'vert 1resize ' . ((&columns * 137 + 137) / 274)
-exe 'vert 2resize ' . ((&columns * 136 + 137) / 274)
 tabnext 1
 if exists('s:wipebuf') && len(win_findbuf(s:wipebuf)) == 0 && getbufvar(s:wipebuf, '&buftype') isnot# 'terminal'
   silent exe 'bwipe ' . s:wipebuf
@@ -376,8 +339,6 @@ endif
 unlet! s:wipebuf
 set winheight=1 winwidth=20
 let &shortmess = s:shortmess_save
-let &winminheight = s:save_winminheight
-let &winminwidth = s:save_winminwidth
 let s:sx = expand("<sfile>:p:r")."x.vim"
 if filereadable(s:sx)
   exe "source " . fnameescape(s:sx)

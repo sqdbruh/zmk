@@ -29,6 +29,13 @@ config ZMK_KEYBOARD_NAME
 config BOARD
     default "gamma"
 
+# Enable I2C and sensor support
+config I2C
+    default y
+
+config SENSOR
+    default y
+
 if USB
 
 config USB_NRFX

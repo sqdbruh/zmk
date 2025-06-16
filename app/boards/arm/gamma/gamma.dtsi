@@ -86,19 +86,11 @@
 };
 
 &i2c0 {
-    clock-frequency = <I2C_BITRATE_STANDARD>;
     status = "okay";
+    clock-frequency = <I2C_BITRATE_FAST>;
     pinctrl-0 = <&i2c0_default>;
     pinctrl-1 = <&i2c0_sleep>;
     pinctrl-names = "default", "sleep";
-
-    apds9960: sensor@39 {
-        status = "okay";
-        compatible = "avago,apds9960";
-        reg = <0x39>;
-        label = "APDS9960";
-        int-gpios = <&gpio0 7 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>;
-    };
 };
 
 &adc {
@@ -125,12 +117,9 @@
 };
 
 &pinctrl {
- /* I2C0 default (active) configuration */
+    /* I2C0 default (active) configuration */
     i2c0_default: i2c0_default {
         group1 {
-            /* TWIM (I2C master) SDA and SCL assignment.
-             * Instance 0 is used since we are configuring i2c0.
-             */
             psels = <NRF_PSEL(TWIM_SDA, 0, 4)>,
                     <NRF_PSEL(TWIM_SCL, 0, 5)>;
             bias-pull-up;
@@ -177,7 +166,7 @@
     spi-max-frequency = <4000000>;
 
     /* WS2812 */
-    chain-length = <5>; /* number of LEDs */
+    chain-length = <11>; /* number of LEDs */
     spi-one-frame = <0x70>;
     spi-zero-frame = <0x40>;
     color-mapping = <LED_COLOR_ID_GREEN

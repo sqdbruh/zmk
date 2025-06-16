@@ -40,14 +40,10 @@ CONFIG_CLOCK_CONTROL_NRF_K32SRC_XTAL=n
 CONFIG_LED_STRIP=y
 CONFIG_WS2812_STRIP=y
 CONFIG_SPI=y  # If using SPI-based driver
-CONFIG_APDS9960_ENABLE_ALS=y
 
-# Enable I2C support
+# Enable I2C and sensor support
 CONFIG_I2C=y
 CONFIG_SENSOR=y
-
-# Enable the APDS-9960 sensor driver (check your Zephyr version/Kconfig)
-CONFIG_APDS9960=y
 
 CONFIG_ZMK_USB_LOGGING=y
 

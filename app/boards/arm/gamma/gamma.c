@@ -39,8 +39,7 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/drivers/pwm.h>
 #include <zmk/workqueue.h>
-#define BLE_LED 0
-#define BATTERY_LED 1
+
 #define CURRENT_BRIGHTNESS 255
 
 #define ArrayCount(Array) (sizeof(Array) / sizeof((Array)[0]))
@@ -49,8 +48,6 @@ static float remap(float value, float fromLow, float fromHigh, float toLow, floa
 }
 
 static const struct device *spi_dev = DEVICE_DT_GET(DT_NODELABEL(spi3));
-
-static const struct device *apds9960_dev = DEVICE_DT_GET(DT_NODELABEL(apds9960));
 
 static const struct gpio_dt_spec charging_status =
     GPIO_DT_SPEC_GET_OR(DT_NODELABEL(chrg_status), gpios, {0});
@@ -67,13 +64,15 @@ static const struct gpio_dt_spec led_enable =
 #endif
 
 static struct led_rgb leds_buffer[STRIP_NUM_PIXELS];
+static const uint8_t led_map[STRIP_NUM_PIXELS] = {0, 1, 2, 3, 4, 9, 8, 7, 6, 5, 10};
 
 static const struct device *const strip = DEVICE_DT_GET(STRIP_NODE);
 
-static void buffer_single_led_color(int index, uint8_t r, uint8_t g, uint8_t b) {
-    leds_buffer[index].r = r;
-    leds_buffer[index].g = g;
-    leds_buffer[index].b = b;
+static void buffer_single_led_color(int logical_idx, uint8_t r, uint8_t g, uint8_t b) {
+    uint8_t phys = led_map[logical_idx];
+    leds_buffer[phys].r = r;
+    leds_buffer[phys].g = g;
+    leds_buffer[phys].b = b;
 }
 
 static void buffer_all_leds_color(uint8_t r, uint8_t g, uint8_t b) {
@@ -97,31 +96,36 @@ static void update_leds_color(uint8_t r, uint8_t g, uint8_t b) {
 static void soc_to_led_buffer(uint8_t soc, struct led_rgb *buffer) {
     int num_leds = STRIP_NUM_PIXELS;
 
-    // Calculate how many LEDs should be fully lit based on SoC
     int full_leds = (soc * num_leds) / 100;
-    if (full_leds == 0)
-        full_leds = 1; // Ensure at least one LED is lit
+    if (full_leds == 0) {
+        full_leds = 1; // хотя бы один LED
+    }
     if (soc > 90) {
         full_leds = num_leds;
     }
 
-    // Set the color for each LED
+    const uint8_t dim_white = 4;
+
     for (int i = 0; i < num_leds; i++) {
         uint8_t r = 0, g = 0, b = 0;
 
-        // Determine brightness based on the fully lit segment count
         if (i < full_leds) {
+            // Заряженные сегменты
             if (i == 0) {
-                r = CURRENT_BRIGHTNESS; // Red for the first LED
+                r = CURRENT_BRIGHTNESS; // красный
             } else if (i == 1) {
-                r = CURRENT_BRIGHTNESS;
-                g = (uint8_t)(CURRENT_BRIGHTNESS * 0.7f); // Yellow for the second LED
+                r = CURRENT_BRIGHTNESS; // жёлтый
+                g = (uint8_t)(CURRENT_BRIGHTNESS * 0.5f);
             } else {
-                g = CURRENT_BRIGHTNESS; // Green for the remaining LEDs
+                g = CURRENT_BRIGHTNESS; // зелёный
             }
+        } else {
+            // Незаряженные сегменты — тусклый белый
+            r = dim_white;
+            g = dim_white;
+            b = dim_white;
         }
 
-        // Assign calculated colors to the buffer
         buffer[i].r = r;
         buffer[i].g = g;
         buffer[i].b = b;
@@ -172,15 +176,28 @@ static void gamma_tick_handler(struct k_timer *timer) {
 K_TIMER_DEFINE(gamma_tick_timer, gamma_tick_handler, NULL);
 
 static void enable_led_power(bool enable) {
-    gpio_pin_set_dt(&led_enable, enable);
-    if (device_is_ready(spi_dev)) {
-        int ret = pm_device_action_run(spi_dev,
-                                       enable ? PM_DEVICE_ACTION_RESUME : PM_DEVICE_ACTION_SUSPEND);
-        if (ret < 0) {
-            LOG_ERR("Failed SPI3: %d", ret);
-        } else {
-            LOG_INF("SPI3 success.");
+    if (enable) {
+        // First enable the GPIO
+        gpio_pin_set_dt(&led_enable, true);
+        k_msleep(10); // Give the LED power time to stabilize
+
+        if (device_is_ready(spi_dev)) {
+            int ret = pm_device_action_run(spi_dev, PM_DEVICE_ACTION_RESUME);
+            if (ret < 0) {
+                LOG_ERR("Failed to resume SPI3: %d", ret);
+                return;
+            }
+            k_msleep(10); // Give SPI time to initialize
+            LOG_INF("SPI3 resumed successfully");
         }
+    } else {
+        if (device_is_ready(spi_dev)) {
+            int ret = pm_device_action_run(spi_dev, PM_DEVICE_ACTION_SUSPEND);
+            if (ret < 0) {
+                LOG_ERR("Failed to suspend SPI3: %d", ret);
+            }
+        }
+        gpio_pin_set_dt(&led_enable, false);
     }
 }
 
@@ -219,101 +236,58 @@ void startup_tick(struct gamma_led_state *state) {
     uint8_t soc = zmk_battery_state_of_charge();
     int num_leds = STRIP_NUM_PIXELS;
 
-    // Calculate how many LEDs should be fully lit based on SoC
-    int full_leds = (soc * num_leds) / 100;
-    if (full_leds == 0)
-        full_leds = 1; // Ensure at least one LED is lit
+    // Подготовим буфер с цветами всех сегментов (заряженные + тусклый белый для пустых)
+    struct led_rgb temp_buffer[STRIP_NUM_PIXELS];
+    soc_to_led_buffer(soc, temp_buffer);
 
-    if (soc > 90) {
-        full_leds = num_leds;
-    }
-
-    // Calculate fade-in and fade-out factors
+    // Рассчёт fade-in/out
     float fade_factor = 1.0f;
-    uint32_t fade_in_ticks = (state->durationInTicks * 30) / 100;       // First 10% for fade-in
-    uint32_t fade_out_start_tick = (state->durationInTicks * 80) / 100; // Last 20% for fadie-out
+    uint32_t fade_in_ticks = (state->durationInTicks * 30) / 100;
+    uint32_t fade_out_start_tick = (state->durationInTicks * 80) / 100;
 
     if (state->currentTick <= fade_in_ticks) {
-        // Fade-in: Brightness increases from 0 to 1 during the first 10% of the animation
         fade_factor = (float)state->currentTick / fade_in_ticks;
     } else if (state->currentTick >= fade_out_start_tick) {
-        // Fade-out: Brightness decreases from 1 to 0 during the last 20% of the animation
         uint32_t fade_ticks = state->currentTick - fade_out_start_tick;
         fade_factor = 1.0f - ((float)fade_ticks / (state->durationInTicks - fade_out_start_tick));
     }
 
+    // Wave-эффект (опционально—можно убрать, тогда просто пойдёт равномерный fade)
+    uint32_t total_ticks = state->durationInTicks;
+    uint32_t wave_ticks = (total_ticks * 10) / 100;
+    uint32_t delay_per_led = wave_ticks / num_leds;
+    uint32_t start_tick, end_tick;
+
     for (int i = 0; i < num_leds; i++) {
-        // Determine brightness for each LED
-        uint8_t brightness = 0;
-        if (i < full_leds) {
-            brightness = CURRENT_BRIGHTNESS; // Fully lit
-        } else {
-            brightness = 0; // Minimal brightness for uncharged sections
-        }
+        // базовые цвета из буфера + fade_factor
+        uint8_t r_base = (uint8_t)(temp_buffer[i].r * fade_factor);
+        uint8_t g_base = (uint8_t)(temp_buffer[i].g * fade_factor);
+        uint8_t b_base = (uint8_t)(temp_buffer[i].b * fade_factor);
 
-        // Apply fade factor to brightness
-        brightness = (uint8_t)(brightness * fade_factor);
-
-        // Set the color for each LED
-        uint8_t r = 0, g = 0, b = 0;
-        if (i == 0) {
-            // RED
-            r = brightness;
-            g = 0;
-            b = 0;
-        } else if (i == 1) {
-            // YELLOW
-            r = brightness;
-            g = brightness * 0.7f;
-            b = 0;
-        } else {
-            // GREEN
-            r = 0;
-            g = brightness;
-            b = 0;
-        }
-
-        uint32_t total_duration_ticks = state->durationInTicks;
-        uint32_t wave_duration_ticks = (total_duration_ticks * 10) / 100;
-        uint32_t led_delay_ticks = wave_duration_ticks / num_leds;
-        uint32_t led_start_tick = i * led_delay_ticks;
-        uint32_t led_end_tick = led_start_tick + led_delay_ticks;
-
-        if (state->currentTick <= wave_duration_ticks) {
-            if (state->currentTick >= led_start_tick && state->currentTick <= led_end_tick) {
-                // Quadratic fade-in effect
-                uint32_t elapsed_ticks = state->currentTick - led_start_tick;
-                uint32_t progress = (elapsed_ticks * 255) / led_delay_ticks;
-                uint32_t fade_brightness = (progress * progress) / 255; // Quadratic easing
-
-                // Apply fade brightness to the target brightness
-                leds_buffer[i].r = (r * fade_brightness) / 255;
-                leds_buffer[i].g = (g * fade_brightness) / 255;
-                leds_buffer[i].b = (b * fade_brightness) / 255;
-            } else if (state->currentTick > led_end_tick) {
-                // LED has already fully lit up
-                leds_buffer[i].r = r;
-                leds_buffer[i].g = g;
-                leds_buffer[i].b = b;
-            } else {
-                // LED has not started fading in yet
-                leds_buffer[i].r = 0;
-                leds_buffer[i].g = 0;
-                leds_buffer[i].b = 0;
+        if (state->currentTick <= wave_ticks) {
+            start_tick = i * delay_per_led;
+            end_tick = start_tick + delay_per_led;
+            if (state->currentTick < start_tick) {
+                // ещё не дошли до этого LED
+                buffer_single_led_color(i, 0, 0, 0);
+                continue;
+            } else if (state->currentTick < end_tick) {
+                // плавный quadratic fade-in для этого LED
+                uint32_t elapsed = state->currentTick - start_tick;
+                uint32_t prog = (elapsed * 255) / delay_per_led;
+                uint32_t qfade = (prog * prog) / 255;
+                buffer_single_led_color(i, (r_base * qfade) / 255, (g_base * qfade) / 255,
+                                        (b_base * qfade) / 255);
+                continue;
             }
-        } else {
-            // Apply global fade factor during fade-out
-            leds_buffer[i].r = r;
-            leds_buffer[i].g = g;
-            leds_buffer[i].b = b;
+            // иначе уже фазе полного яркого
         }
+
+        // В все остальные моменты просто показываем цвет
+        buffer_single_led_color(i, r_base, g_base, b_base);
     }
 
-    // Update the LED strip
-    int rc = led_strip_update_rgb(strip, leds_buffer, STRIP_NUM_PIXELS);
-    if (rc) {
-        LOG_ERR("Couldn't update strip: %d", rc);
-    }
+    update_leds();
 }
 
 void ble_disconnected_tick(struct gamma_led_state *state) {
@@ -330,46 +304,71 @@ void ble_disconnected_tick(struct gamma_led_state *state) {
 }
 
 void battery_charging_tick() {
-    static uint32_t animation_tick = 0;
-    animation_tick++;
+    static float trail[STRIP_NUM_PIXELS] = {0.0f};
+    static int forward_pos = 0;
+    static bool waiting = false;
+    static uint32_t tick = 0;
+    static int pause_ticks = 0;
 
-    uint8_t soc = zmk_battery_state_of_charge(); // Get the state of charge (0-100%)
-    buffer_all_leds_color(0, 0, 0);              // Clear all LEDs
+    const int num_leds = STRIP_NUM_PIXELS;
+    const int speed = 8;             // head moves every 3 calls
+    const float fade_factor = 0.85f; // trail fade multiplier
+    const float min_thresh = 0.01f;  // cutoff for zero
+    const int pause_duration = 20;   // ticks to wait after full fade
 
-    int num_leds = STRIP_NUM_PIXELS;
-    int segment_size = 100 / num_leds; // Percentage per LED segment
+    tick++;
 
-    if (soc >= 95) {
-        // Show all LEDs fully green at high SoC
-        buffer_all_leds_color(0, 255, 0);
-    } else {
-        // Calculate fully charged segments and current segment progress
-        int full_leds = soc / segment_size;   // Fully charged LEDs
-        int segment_soc = soc % segment_size; // Remainder within the current segment
-
-        // Set fully charged LEDs to green
-        for (int i = 0; i < full_leds; i++) {
-            buffer_single_led_color(i, 0, 255, 0);
-        }
-
-        // If there is a segment currently charging (not fully charged yet)
-        if (full_leds < num_leds) {
-            // t based on how far into the current segment we are (0 to 1)
-            float t = (float)segment_soc / (float)segment_size;
-
-            // Add a time-based component for animation
-            // For example, cycle every ~100 ticks: adjust the 0.1f factor as desired for speed
-            float time_factor = animation_tick * 0.004f;
-
-            // Combine position-based t and time_factor for a continuous sine wave
-            float brightness = 0.5f + 0.5f * sinf((t * M_PI * 2.0f) + time_factor);
-
-            uint8_t value = (uint8_t)(brightness * 255);
-            buffer_single_led_color(full_leds, 0, value, 0);
+    // 1) Fade existing trail
+    for (int i = 0; i < num_leds; i++) {
+        trail[i] *= fade_factor;
+        if (trail[i] < min_thresh) {
+            trail[i] = 0.0f;
         }
     }
 
-    update_leds(); // Update the LED strip
+    if (!waiting) {
+        // 2) Move head
+        if (tick % speed == 0) {
+            forward_pos++;
+            if (forward_pos >= num_leds) {
+                // Reached top—enter waiting state
+                waiting = true;
+            }
+        }
+        // 3) Light up head if still in motion
+        if (forward_pos < num_leds) {
+            int head = forward_pos; // bottom-to-top
+            trail[head] = 1.0f;
+        }
+    } else {
+        // 4) Check if any trail remains
+        bool any_left = false;
+        for (int i = 0; i < num_leds; i++) {
+            if (trail[i] > 0.0f) {
+                any_left = true;
+                break;
+            }
+        }
+        if (!any_left) {
+            // 5) Once fully faded, wait additional ticks
+            if (pause_ticks < pause_duration) {
+                pause_ticks++;
+            } else {
+                // Reset everything and restart
+                waiting = false;
+                forward_pos = 0;
+                tick = 0;
+                pause_ticks = 0;
+            }
+        }
+    }
+
+    // 6) Render LED strip
+    for (int i = 0; i < num_leds; i++) {
+        uint8_t b = (uint8_t)(trail[i] * 255);
+        buffer_single_led_color(i, 0, b, 0);
+    }
+    update_leds();
 }
 
 void ble_connected_tick(struct gamma_led_state *state) {
@@ -384,26 +383,6 @@ void ble_connected_tick(struct gamma_led_state *state) {
 
     update_leds();
 }
-
-// static void low_battery_tick(struct gamma_led_state *state) {
-//     buffer_all_leds_color(0, 0, 0);
-//     buffer_single_led_color(0, 100, 0, 0);
-//     update_leds();
-// }
-
-// static bool showingLowBattery;
-
-// static void on_show_low_battery_complete() { showingLowBattery = false; }
-
-// static void show_low_battery_animation() {
-//     showingLowBattery = true;
-//     struct gamma_led_state state = {};
-//     state.onTick = low_battery_tick;
-//     state.currentTick = 0;
-//     state.onComplete = on_show_low_battery_complete;
-//     state.durationInTicks = 500;
-//     enqueue(&led_queue, state);
-// }
 
 static void gamma_tick(struct k_work *work) {
     if (((currentState.currentTick < currentState.durationInTicks) && currentState.onTick) ||
@@ -470,40 +449,6 @@ void show_startup_animation() {
     enqueue(&led_queue, state);
 }
 
-static void apds9960_timer_handler(struct k_timer *timer) {
-    if (!device_is_ready(apds9960_dev)) {
-        // If sensor is not ready, just exit silently (or log an error)
-        LOG_INF("APDS9960 not ready:");
-        return;
-    }
-
-    /* Trigger a new sample from the sensor. */
-    LOG_INF("APDS9960 fetching...");
-    int rc = sensor_sample_fetch(apds9960_dev);
-    if (rc < 0) {
-        LOG_ERR("APDS9960: sensor_sample_fetch failed (%d)", rc);
-        return;
-    }
-
-    /* Read proximity data from the sensor. */
-    LOG_INF("APDS9960 fetching proximity...");
-    struct sensor_value prox;
-    rc = sensor_channel_get(apds9960_dev, SENSOR_CHAN_PROX, &prox);
-    if (rc < 0) {
-        LOG_ERR("APDS9960: sensor_channel_get failed (%d)", rc);
-        return;
-    }
-
-    /*
-     * Usually prox.val1 holds the proximity reading.
-     * The driver returns an integer range 0..255, or 0..1023, depending on the driver specifics.
-     */
-    LOG_INF("APDS9960 prox: %d", prox.val1);
-}
-
-/* Define the timer (single shot or repeated) */
-K_TIMER_DEFINE(apds9960_timer, apds9960_timer_handler, NULL);
-
 static void gamma_init_delayed() {
     k_msleep(10);
     LOG_INF("Init delayed");
@@ -514,15 +459,7 @@ static void gamma_init_delayed() {
     init_queue(&led_queue);
     show_startup_animation();
 
-    if (!device_is_ready(apds9960_dev)) {
-        LOG_ERR("APDS9960 not ready");
-    } else {
-        // Start timer to trigger every 100 ms
-        LOG_INF("APDS9960 timer started (500 ms).");
-        k_timer_start(&apds9960_timer, K_MSEC(500), K_MSEC(500));
-    }
-
-    // update_leds_color(0, 0, 0);
+    LOG_INF("WS2812 chain length detected: %d pixels", STRIP_NUM_PIXELS);
 }
 
 K_WORK_DEFINE(gamma_init_delayed_work, gamma_init_delayed);
@@ -575,9 +512,9 @@ static void show_battery_fade_in_tick(struct gamma_led_state *state) {
 
     float fade_factor = calc_fade_in_factor(state);
     for (int i = 0; i < STRIP_NUM_PIXELS; i++) {
-        leds_buffer[i].r = (uint8_t)(temp_buffer[i].r * fade_factor);
-        leds_buffer[i].g = (uint8_t)(temp_buffer[i].g * fade_factor);
-        leds_buffer[i].b = (uint8_t)(temp_buffer[i].b * fade_factor);
+        buffer_single_led_color(i, (uint8_t)(temp_buffer[i].r * fade_factor),
+                                (uint8_t)(temp_buffer[i].g * fade_factor),
+                                (uint8_t)(temp_buffer[i].b * fade_factor));
     }
     update_leds();
 }
@@ -589,16 +526,22 @@ static void show_battery_fade_out_tick(struct gamma_led_state *state) {
 
     float fade_factor = calc_fade_out_factor(state);
     for (int i = 0; i < STRIP_NUM_PIXELS; i++) {
-        leds_buffer[i].r = (uint8_t)(temp_buffer[i].r * fade_factor);
-        leds_buffer[i].g = (uint8_t)(temp_buffer[i].g * fade_factor);
-        leds_buffer[i].b = (uint8_t)(temp_buffer[i].b * fade_factor);
+        buffer_single_led_color(i, (uint8_t)(temp_buffer[i].r * fade_factor),
+                                (uint8_t)(temp_buffer[i].g * fade_factor),
+                                (uint8_t)(temp_buffer[i].b * fade_factor));
     }
     update_leds();
 }
 
 static void show_battery_static_tick() {
     uint8_t soc = zmk_battery_state_of_charge();
-    soc_to_led_buffer(soc, leds_buffer);
+    struct led_rgb temp_buffer[STRIP_NUM_PIXELS];
+    soc_to_led_buffer(soc, temp_buffer);
+    for (int i = 0; i < STRIP_NUM_PIXELS; i++) {
+        buffer_single_led_color(i, (uint8_t)(temp_buffer[i].r), (uint8_t)(temp_buffer[i].g),
+                                (uint8_t)(temp_buffer[i].b));
+    }
+
     update_leds();
 }
 
