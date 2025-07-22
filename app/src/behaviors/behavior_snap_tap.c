@@ -144,7 +144,7 @@ static int on_snap_tap_binding_released(struct zmk_behavior_binding *binding,
 }
 
 #if IS_ENABLED(CONFIG_ZMK_BEHAVIOR_METADATA)
-extern const struct behavior_parameter_metadata metadata;
+static const struct behavior_parameter_metadata metadata;
 #endif // IS_ENABLED(CONFIG_ZMK_BEHAVIOR_METADATA)
 
 static const struct behavior_driver_api behavior_snap_tap_driver_api = {
