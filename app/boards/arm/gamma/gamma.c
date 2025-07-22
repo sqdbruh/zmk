@@ -138,6 +138,7 @@ volatile bool showBattery;
 volatile bool showBatteryDisplay;
 volatile bool isPowered;
 volatile bool isConnected;
+volatile bool isFullyCharged;
 
 struct gamma_led_state {
     void (*onTick)(struct gamma_led_state *);
@@ -371,6 +372,17 @@ void battery_charging_tick() {
     update_leds();
 }
 
+void battery_fully_charged_tick() {
+    // Показываем все светодиоды зеленым цветом при полной зарядке
+    buffer_all_leds_color(0, CURRENT_BRIGHTNESS, 0);
+    update_leds();
+}
+
+static bool check_charging_status() {
+    // Проверяем статус зарядки (active low означает полную зарядку)
+    return gpio_pin_get_dt(&charging_status);
+}
+
 void ble_connected_tick(struct gamma_led_state *state) {
     float brightness = 0.0f;
     if (state->t01 < 0.8f) {
@@ -399,7 +411,18 @@ static void gamma_tick(struct k_work *work) {
         }
     } else if (isPowered) {
         enable_led_power(true);
-        battery_charging_tick();
+        // Проверяем статус зарядки
+        bool currentlyFullyCharged = check_charging_status();
+        if (currentlyFullyCharged != isFullyCharged) {
+            isFullyCharged = currentlyFullyCharged;
+            LOG_INF("Charging status changed: %s", isFullyCharged ? "fully charged" : "charging");
+        }
+
+        if (isFullyCharged) {
+            battery_fully_charged_tick();
+        } else {
+            battery_charging_tick();
+        }
     } else {
         update_leds_color(0, 0, 0);
         k_timer_stop(&gamma_tick_timer);
@@ -467,6 +490,7 @@ K_WORK_DEFINE(gamma_init_delayed_work, gamma_init_delayed);
 static int gamma_init(void) {
     LOG_INF("Gamma init");
     showBattery = false;
+    isFullyCharged = false;
 
     if (device_is_ready(strip)) {
         LOG_INF("Found LED strip device %s", strip->name);

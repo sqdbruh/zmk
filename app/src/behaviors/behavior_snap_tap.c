@@ -143,6 +143,10 @@ static int on_snap_tap_binding_released(struct zmk_behavior_binding *binding,
     return ZMK_BEHAVIOR_OPAQUE;
 }
 
+#if IS_ENABLED(CONFIG_ZMK_BEHAVIOR_METADATA)
+extern const struct behavior_parameter_metadata metadata;
+#endif // IS_ENABLED(CONFIG_ZMK_BEHAVIOR_METADATA)
+
 static const struct behavior_driver_api behavior_snap_tap_driver_api = {
     .binding_pressed = on_snap_tap_binding_pressed,
     .binding_released = on_snap_tap_binding_released,

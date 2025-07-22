@@ -275,7 +275,7 @@ badd +112 app/Session.vim
 badd +110 app/src/usb_hid.c
 badd +1 app/boards/arm/gamma_mk3/CMakeLists.txt
 badd +125 app/boards/arm/gamma/gamma_seg.c
-badd +102 app/boards/arm/gamma/gamma.c
+badd +99 app/boards/arm/gamma/gamma.c
 badd +35 app/boards/arm/nice60/nice60.dts
 badd +12 app/boards/shields/kyria/kyria_rev3.keymap
 badd +1 app/boards/shields/kyria/kyria_rev2.conf
@@ -311,11 +311,53 @@ badd +122 zephyr/include/zephyr/drivers/sensor/veml7700.h
 badd +28 zephyr/include/zephyr/drivers/sensor/opt3001.h
 badd +1 zephyr/include/zephyr/drivers/sensor/tsl2540.h
 badd +1 new
+badd +9 app/src/behaviors/behavior_snap_tap.c
 argglobal
 %argdel
-edit app/dts/behaviors/check_battery.dtsi
+edit app/boards/arm/gamma/gamma.c
+let s:save_splitbelow = &splitbelow
+let s:save_splitright = &splitright
+set splitbelow splitright
+wincmd _ | wincmd |
+vsplit
+1wincmd h
+wincmd w
+let &splitbelow = s:save_splitbelow
+let &splitright = s:save_splitright
+wincmd t
+let s:save_winminheight = &winminheight
+let s:save_winminwidth = &winminwidth
+set winminheight=0
+set winheight=1
+set winminwidth=0
+set winwidth=1
+exe 'vert 1resize ' . ((&columns * 136 + 137) / 274)
+exe 'vert 2resize ' . ((&columns * 137 + 137) / 274)
 argglobal
-balt app/include/zmk/check_battery.h
+balt app/dts/behaviors/check_battery.dtsi
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=99
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let &fdl = &fdl
+let s:l = 99 - ((24 * winheight(0) + 26) / 52)
+if s:l < 1 | let s:l = 1 | endif
+keepjumps exe s:l
+normal! zt
+keepjumps 99
+normal! 043|
+wincmd w
+argglobal
+if bufexists(fnamemodify("app/src/behaviors/behavior_snap_tap.c", ":p")) | buffer app/src/behaviors/behavior_snap_tap.c | else | edit app/src/behaviors/behavior_snap_tap.c | endif
+if &buftype ==# 'terminal'
+  silent file app/src/behaviors/behavior_snap_tap.c
+endif
+balt app/boards/arm/gamma/gamma.c
 setlocal fdm=manual
 setlocal fde=0
 setlocal fmr={{{,}}}
@@ -332,6 +374,10 @@ keepjumps exe s:l
 normal! zt
 keepjumps 1
 normal! 0
+wincmd w
+2wincmd w
+exe 'vert 1resize ' . ((&columns * 136 + 137) / 274)
+exe 'vert 2resize ' . ((&columns * 137 + 137) / 274)
 tabnext 1
 if exists('s:wipebuf') && len(win_findbuf(s:wipebuf)) == 0 && getbufvar(s:wipebuf, '&buftype') isnot# 'terminal'
   silent exe 'bwipe ' . s:wipebuf
@@ -339,6 +385,8 @@ endif
 unlet! s:wipebuf
 set winheight=1 winwidth=20
 let &shortmess = s:shortmess_save
+let &winminheight = s:save_winminheight
+let &winminwidth = s:save_winminwidth
 let s:sx = expand("<sfile>:p:r")."x.vim"
 if filereadable(s:sx)
   exe "source " . fnameescape(s:sx)
