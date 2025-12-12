@@ -36,6 +36,7 @@ ZMK Studio currently has the following capabilities:
 |   ✅   | Renaming layers & enabling [extra layers](#including-extra-layers)                                                                        |
 |   ❌   | Adding more layers than specified by devicetree                                                                                           |
 |   💡   | Host locale selection                                                                                                                     |
+|   💡   | Importing and exporting keymaps                                                                                                           |
 
 Items listed as "planned", "under development", "low priority", or "not planned" can be configured using [devicetree](../config/index.md#devicetree-files) instead.
 
@@ -60,6 +61,13 @@ To use the native app for Linux, macOS, or Windows, visit the [download page](ht
 :::warning
 
 To use ZMK Studio over USB, you need permission to access the USB serial port. This most commonly occurs on Linux, with various distributions having different methods of resolving the error. For example, you may need to be added to a `uucp` or a `dialout` group. Refer to your operating system's documentation for more information.
+
+:::
+
+:::note
+
+If you are connected to the computer over both USB and BLE endpoints, you should set the keyboard output to the same endpoint that you connect to ZMK Studio using.
+For example, if you are connecting to ZMK Studio over USB, ensure that USB output is selected by invoking the `&out OUT_USB` [behavior](../keymaps/behaviors/outputs.md).
 
 :::
 
@@ -168,7 +176,7 @@ To allow ZMK Studio to be used with a keyboard, the keyboard will need to have a
 - The [new shield guide](../development/hardware-integration/new-shield.mdx), informing you how to select a physical layout once defined
 - The corresponding [configuration page](../config/layout.md#physical-layout), for reference
 
-To use the `studio-rpc-usb-uart` snippet, the keyboard also needs to be configured to allow CDC-ACM console snippets (this is also used for [USB logging](../development/usb-logging.mdx)). If your keyboard is a composite keyboard, consisting of an in-tree board and a shield, then you can skip this step as the board will already be configured properly. Relevant information on that can be found [in the Zephyr documentation](https://docs.zephyrproject.org/3.5.0/snippets/cdc-acm-console/README.html).
+To use the `studio-rpc-usb-uart` snippet, the keyboard also needs to be configured to allow CDC-ACM console snippets (this is also used for [USB logging](../development/usb-logging.mdx)). If your keyboard is a composite keyboard, consisting of an in-tree board and a shield, then you can skip this step as the board will already be configured properly. Relevant information on that can be found [in the Zephyr documentation](https://docs.zephyrproject.org/4.1.0/snippets/cdc-acm-console/README.html).
 
 Firmware with ZMK Studio enabled require significantly more RAM. Some MCUs, such as the STM32F072 series, will require fine tuning of various settings in order to reduce the RAM consumption enough for a Studio enabled build to fit.
 

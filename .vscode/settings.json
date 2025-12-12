@@ -4,7 +4,7 @@
     "*.keymap": "dts",
     "opt3001.h": "c"
   },
-  "python.formatting.provider": "black",
+  "python.analysis.include": ["app/scripts", "zephyr/scripts"],
   "[c]": {
     "editor.formatOnSave": true
   },
@@ -14,7 +14,7 @@
   },
   "[python]": {
     "editor.formatOnSave": true,
-    "editor.defaultFormatter": "ms-python.python"
+    "editor.defaultFormatter": "ms-python.black-formatter"
   },
   "[css][json][jsonc][html][markdown][yaml]": {
     "editor.formatOnSave": true,
