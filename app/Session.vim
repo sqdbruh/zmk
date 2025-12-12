@@ -90,7 +90,7 @@ badd +11 zephyr/dts/arm/nordic/nrf52840_qiaa.dtsi
 badd +1 zephyr/dts/arm/nordic/nrf52840.dtsi
 badd +6 app/boards/arm/gamma/board.cmake
 badd +69 app/boards/arm/gamma/Kconfig.defconfig
-badd +76 app/boards/arm/gamma/gamma.keymap
+badd +55 app/boards/arm/gamma/gamma.keymap
 badd +23 app/boards/arm/gamma/gamma.yaml
 badd +4 app/boards/arm/gamma/gamma.zmk.yml
 badd +1 app/boards/arm/nrf52840_m2/board.cmake
@@ -171,16 +171,16 @@ badd +44 zephyr/include/zephyr/bluetooth/services/bas.h
 badd +75 app/boards/shields/zmk_uno/zmk_uno.dtsi
 badd +50 app/boards/arm/gamma/gamma_left_defconfig
 badd +125 app/CMakeLists.txt
-badd +24 app/boards/arm/gamma/gamma.dtsi
+badd +62 app/boards/arm/gamma/gamma.dtsi
 badd +1 app/boards/arm/gamma/gamma_left.dts
 badd +1 app/boards/arm/gamma/gamma_right.dts
 badd +43 app/boards/arm/gamma/gamma_right_defconfig
 badd +20 app/boards/shields/zodiark/Kconfig.defconfig
 badd +25 app/boards/arm/nrfmicro/nrfmicro_11_flipped_defconfig
-badd +35 app/boards/arm/gamma/gamma_dongle_defconfig
+badd +7 app/boards/arm/gamma/gamma_dongle_defconfig
 badd +10 app/boards/shields/settings_reset/Kconfig.defconfig
 badd +9 app/include/zmk/split/bluetooth/peripheral.h
-badd +75 app/boards/arm/gamma/gamma_dongle.c
+badd +1 app/boards/arm/gamma/gamma_dongle.c
 badd +44 app/boards/arm/gamma/gamma_dongle.dts
 badd +12 app/include/zmk/ble.h
 badd +14 app/include/zmk/behavior.h
@@ -275,7 +275,7 @@ badd +112 app/Session.vim
 badd +110 app/src/usb_hid.c
 badd +1 app/boards/arm/gamma_mk3/CMakeLists.txt
 badd +125 app/boards/arm/gamma/gamma_seg.c
-badd +99 app/boards/arm/gamma/gamma.c
+badd +1 app/boards/arm/gamma/gamma.c
 badd +35 app/boards/arm/nice60/nice60.dts
 badd +12 app/boards/shields/kyria/kyria_rev3.keymap
 badd +1 app/boards/shields/kyria/kyria_rev2.conf
@@ -311,7 +311,7 @@ badd +122 zephyr/include/zephyr/drivers/sensor/veml7700.h
 badd +28 zephyr/include/zephyr/drivers/sensor/opt3001.h
 badd +1 zephyr/include/zephyr/drivers/sensor/tsl2540.h
 badd +1 new
-badd +9 app/src/behaviors/behavior_snap_tap.c
+badd +153 app/src/behaviors/behavior_snap_tap.c
 argglobal
 %argdel
 edit app/boards/arm/gamma/gamma.c
@@ -335,37 +335,37 @@ exe 'vert 1resize ' . ((&columns * 136 + 137) / 274)
 exe 'vert 2resize ' . ((&columns * 137 + 137) / 274)
 argglobal
 balt app/dts/behaviors/check_battery.dtsi
-setlocal fdm=manual
-setlocal fde=0
-setlocal fmr={{{,}}}
-setlocal fdi=#
-setlocal fdl=99
-setlocal fml=1
-setlocal fdn=20
-setlocal fen
+setlocal foldmethod=manual
+setlocal foldexpr=0
+setlocal foldmarker={{{,}}}
+setlocal foldignore=#
+setlocal foldlevel=99
+setlocal foldminlines=1
+setlocal foldnestmax=20
+setlocal foldenable
 silent! normal! zE
 let &fdl = &fdl
-let s:l = 99 - ((24 * winheight(0) + 26) / 52)
+let s:l = 67 - ((33 * winheight(0) + 26) / 52)
 if s:l < 1 | let s:l = 1 | endif
 keepjumps exe s:l
 normal! zt
-keepjumps 99
-normal! 043|
+keepjumps 67
+normal! 020|
 wincmd w
 argglobal
-if bufexists(fnamemodify("app/src/behaviors/behavior_snap_tap.c", ":p")) | buffer app/src/behaviors/behavior_snap_tap.c | else | edit app/src/behaviors/behavior_snap_tap.c | endif
+if bufexists(fnamemodify("app/boards/arm/gamma/gamma_left_defconfig", ":p")) | buffer app/boards/arm/gamma/gamma_left_defconfig | else | edit app/boards/arm/gamma/gamma_left_defconfig | endif
 if &buftype ==# 'terminal'
-  silent file app/src/behaviors/behavior_snap_tap.c
+  silent file app/boards/arm/gamma/gamma_left_defconfig
 endif
-balt app/boards/arm/gamma/gamma.c
-setlocal fdm=manual
-setlocal fde=0
-setlocal fmr={{{,}}}
-setlocal fdi=#
-setlocal fdl=99
-setlocal fml=1
-setlocal fdn=20
-setlocal fen
+balt app/boards/arm/gamma/gamma_dongle_defconfig
+setlocal foldmethod=manual
+setlocal foldexpr=0
+setlocal foldmarker={{{,}}}
+setlocal foldignore=#
+setlocal foldlevel=99
+setlocal foldminlines=1
+setlocal foldnestmax=20
+setlocal foldenable
 silent! normal! zE
 let &fdl = &fdl
 let s:l = 1 - ((0 * winheight(0) + 26) / 52)

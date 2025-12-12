@@ -64,7 +64,7 @@ static const struct gpio_dt_spec led_enable =
 #endif
 
 static struct led_rgb leds_buffer[STRIP_NUM_PIXELS];
-static const uint8_t led_map[STRIP_NUM_PIXELS] = {0, 1, 2, 3, 4, 9, 8, 7, 6, 5, 10};
+static const uint8_t led_map[STRIP_NUM_PIXELS] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
 static const struct device *const strip = DEVICE_DT_GET(STRIP_NODE);
 
@@ -138,7 +138,7 @@ volatile bool showBattery;
 volatile bool showBatteryDisplay;
 volatile bool isPowered;
 volatile bool isConnected;
-volatile bool isFullyCharged;
+volatile bool isCharging;
 
 struct gamma_led_state {
     void (*onTick)(struct gamma_led_state *);
@@ -378,11 +378,10 @@ void battery_fully_charged_tick() {
     update_leds();
 }
 
-static bool check_charging_status() {
-    // Проверяем статус зарядки (active low означает полную зарядку)
-    return gpio_pin_get_dt(&charging_status);
+static bool is_charging(void) {
+    int v = gpio_pin_get_dt(&charging_status); // с ACTIVE_LOW это уже инвертировано
+    return v == 1; // 1 == «активно», т.е. заряд идёт
 }
-
 void ble_connected_tick(struct gamma_led_state *state) {
     float brightness = 0.0f;
     if (state->t01 < 0.8f) {
@@ -412,16 +411,18 @@ static void gamma_tick(struct k_work *work) {
     } else if (isPowered) {
         enable_led_power(true);
         // Проверяем статус зарядки
-        bool currentlyFullyCharged = check_charging_status();
-        if (currentlyFullyCharged != isFullyCharged) {
-            isFullyCharged = currentlyFullyCharged;
-            LOG_INF("Charging status changed: %s", isFullyCharged ? "fully charged" : "charging");
+        bool charging = is_charging();
+        if (charging != isCharging) {
+            isCharging = charging;
+            LOG_INF("Charging status changed: %s", charging ? "charging" : "not charging");
         }
-
-        if (isFullyCharged) {
-            battery_fully_charged_tick();
-        } else {
-            battery_charging_tick();
+        if (isPowered) {
+            if (isCharging) {
+                battery_charging_tick();
+            } else {
+                battery_fully_charged_tick(); 
+                // TODO(sqd): This might also indicate that no battery plugged in
+            }
         }
     } else {
         update_leds_color(0, 0, 0);
@@ -490,7 +491,7 @@ K_WORK_DEFINE(gamma_init_delayed_work, gamma_init_delayed);
 static int gamma_init(void) {
     LOG_INF("Gamma init");
     showBattery = false;
-    isFullyCharged = false;
+    isCharging = false;
 
     if (device_is_ready(strip)) {
         LOG_INF("Found LED strip device %s", strip->name);
