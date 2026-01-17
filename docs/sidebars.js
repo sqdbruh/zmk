@@ -13,6 +13,7 @@ module.exports = {
         "faq",
         "user-setup",
         "customization",
+        "zmk-cli",
         {
           type: "category",
           label: "Troubleshooting",
@@ -121,6 +122,7 @@ module.exports = {
         "config/battery",
         "config/behaviors",
         "config/bluetooth",
+        "config/bootloader",
         "config/combos",
         "config/displays",
         "config/encoders",
